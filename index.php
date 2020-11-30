@@ -2,10 +2,9 @@
 use skrtdev\Telegram\Message;
 
 header('Content-Type: application/json');
+
 if (file_exists('vendor')) {
-
     require 'vendor/autoload.php';
-
 }
 
 //phar
@@ -43,9 +42,11 @@ $userReply = $message->reply_to_message->from;                              // u
 
 //commands
 
+
 try {
 
     if(isset($message->text)){
+
 
         // simple command for sending a message
         if ($text === "/testBot") {
@@ -163,6 +164,7 @@ try {
             $adminsar = [];
             foreach ($chatAdmins as $chatAdmin) {
                 if ($chatAdmin === '[ChatMember]') continue;
+                
                 $adminsar[] = "<a href='t.me/{$chatAdmin->user->username}'>@" . ($chatAdmin->user->username) . "</a>\n";
             }
 
@@ -176,11 +178,14 @@ try {
                 "chat_id" => $chatid,
                 "user_id" => $useridReply
             ]);
+
             $isAdmin = in_array($chatMember->status, ["administrator", "creator"]);
+
             if ($isAdmin) {
                 $chat->sendMessage("@" . $usernameReply . " is an admin");
             } else {
                 if (!in_array($chatMember->status, ["administrator", "creator"])) {
+
                     $chat->sendMessage("@" . $usernameReply . " isn't an admin");
                 }
             }
