@@ -1,5 +1,9 @@
 <?php
 
+/*
+    usage: doit("text");
+*/
+
 function get_tiny_url($url)
 {
     $ch = curl_init();
@@ -9,7 +13,7 @@ function get_tiny_url($url)
     curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
     $data = curl_exec($ch);
     curl_close($ch);
-    
+
     return $data;
 }
 
