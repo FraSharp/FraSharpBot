@@ -101,6 +101,18 @@ try {
         }
 
 
+        // command to unpin all the pinned messages in a group/supergroup
+        if ($text === "/unpinAllMessages") {
+            if ($chat->pinned_message == false) {
+                $chat->sendMessage("no pinned messages");
+            } else {
+                $unpinAllChatMessage = $Bot->unpinAllChatMessages([
+                    "chat_id" => $chatid
+                ]);
+            }
+        }
+
+
         // command to mute the user in reply
         if ($text == "/muteUser") {
             $restrict = $Bot->restrictChatMember([
