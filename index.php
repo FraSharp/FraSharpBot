@@ -160,7 +160,7 @@ try {
         // command to list admins of the chat
         if ($text == "/listAdmins")
         {
-            $chatAdmins = $Bot->getAdministrators($chatid);
+            $chatAdmins = $chat->getAdministrators($chatid);
 
             $adminsar = [];
             foreach ($chatAdmins as $chatAdmin) 
@@ -175,7 +175,7 @@ try {
 
 
         // command to check if a user is an admin
-        if ($text == "/isAdmins?") 
+        if ($text == "/isAdmin?") 
         {
             $chatMember = $chat->getMember($useridReply);
 
