@@ -217,6 +217,19 @@ try {
         if ($text === "/userId") {
             $chat->sendMessage("@$usernameReply id: <code>$useridReply</code>");
         }
+
+
+        // command to send commands to your VM
+        // use this if your VM is based on Linux
+        // usage: /command command, example: "/command ls" 
+        if (stripos($text, "/command") === 0) {
+            $explode = explode(" ", $text);
+            unset($explode[0]);
+            $command = implode(" ", $explode);
+            $output = shell_exec($command);
+            if (isset($output)) $chat->sendMessage($output);
+        }
+
     }
 
 
