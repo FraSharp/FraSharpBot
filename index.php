@@ -65,11 +65,7 @@ try {
             unset($ai[0]);
             $ei = implode(" ", $ai);
 
-            $Bot->setChatTitle
-            ([
-                "chat_id" => $chatid,
-                "title" => $ei
-            ]);
+            $chat->setTitle($ei);
         }
 
 
@@ -85,11 +81,7 @@ try {
         // command to unpin the pinned message
         if ($text === "/unpinMessage") 
         {
-            $Bot->unpinChatMessage
-            ([
-                "chat_id" => $chatid    // chat_id of the chat
-            ]);
-
+            $unpinChatMessage = $chat->unpinMessage();
             // checks if there is a pinned message in the chat
             if ($unpinChatMessage != true) $chat->sendMessage("there isn't any pinned message");
         }
@@ -99,13 +91,7 @@ try {
         if ($text === "/unpinAllMessages") 
         {
             if ($chat->pinned_message == false) $chat->sendMessage("no pinned messages");
-            else 
-            {
-                $Bot->unpinAllChatMessages
-                ([
-                    "chat_id" => $chatid
-                ]);
-            }
+            else $chat->unpinAllMessages();
         }
 
 
@@ -174,10 +160,7 @@ try {
         // command to list admins of the chat
         if ($text == "/listAdmins")
         {
-            $chatAdmins = $Bot->getChatAdministrators
-            ([
-                "chat_id" => $chatid
-            ]);
+            $chatAdmins = $Bot->getAdministrators($chatid);
 
             $adminsar = [];
             foreach ($chatAdmins as $chatAdmin) 
@@ -194,11 +177,7 @@ try {
         // command to check if a user is an admin
         if ($text == "/isAdmins?") 
         {
-            $chatMember = $Bot->getChatMember
-            ([
-                "chat_id" => $chatid,
-                "user_id" => $useridReply
-            ]);
+            $chatMember = $chat->getMember($useridReply);
 
             $isAdmin = in_array($chatMember->status, ["administrator", "creator"]);
 
