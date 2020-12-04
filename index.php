@@ -88,8 +88,7 @@ $Bot->onTextMessage(function (Message $message) {
 
         // command to mute the user in reply
         if ($text == "/muteUser") {
-            $restrict = $Bot->restrictChatMember
-            ([
+            $Bot->restrictChatMember([
                 "chat_id" => $chatid,
                 "user_id" => $useridReply,
                 "can_send_messages" => 0
@@ -100,8 +99,7 @@ $Bot->onTextMessage(function (Message $message) {
 
         // command to unmute the user in reply
         if ($text == "/unmuteUser") {
-            $Bot->restrictChatMember
-            ([
+            $Bot->restrictChatMember([
                 "chat_id" => $chatid,
                 "user_id" => $useridReply,
                 "can_send_messages" => 1
@@ -115,8 +113,7 @@ $Bot->onTextMessage(function (Message $message) {
             $ai = str_replace("admin ", "", $text);
             $ai = explode(" ", $text);
 
-            $Bot->promoteChatMember
-            ([
+            $Bot->promoteChatMember([
                 "chat_id" => $chatid,
                 "user_id" => $useridReply,
                 "can_change_info" => boolval($ai[0]),
@@ -131,8 +128,7 @@ $Bot->onTextMessage(function (Message $message) {
 
         // command to demote an admin to user
         if ((strpos($text, "/demoteMember") === 0) and ($replyToMessage !== null and $usernameReply !== null)) {
-            $Bot->promoteChatMember
-            ([
+            $Bot->promoteChatMember([
                 "chat_id" => $chatid,
                 "user_id" => $useridReply,
                 "can_change_info" => false,
