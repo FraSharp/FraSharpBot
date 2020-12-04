@@ -21,6 +21,7 @@ $Bot = new Bot("YOUR_BOT_TOKEN", [
 
 
 $Bot->onTextMessage(function (Message $message) {
+    global $Bot;
 
     $text = $message->text;                                                     // text the message
     $chat = $message->chat;                                                     // chat
@@ -212,3 +213,4 @@ $Bot->onTextMessage(function (Message $message) {
 
 
 $chat->sendMessage("<b>error code: " . $e->getCode() . "</b>\n\n<b>description: </b>$e");
+});
