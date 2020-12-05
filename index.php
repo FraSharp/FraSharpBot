@@ -179,7 +179,13 @@ $Bot->onTextMessage(function (Message $message) {
 
         // command to get user_id of user in reply
         if ($text === "/userId") {
-            $chat->sendMessage("@$usernameReply id: <code>$useridReply</code>");
+            $chat->sendMessage("@$usernameReply 's id: <code>$useridReply</code>");
+        }
+
+
+        // command to get chat_id of the chat
+        if ($text === "/chatId") {
+            $chat->sendMessage("<code>$chat->title</code> 's id: <code>$chat->id</code>");
         }
 
 
@@ -192,7 +198,7 @@ $Bot->onTextMessage(function (Message $message) {
             unset($explode[0]);
             $command = implode(" ", $explode);
             $response = shell_exec($command);
-            if (isset($output)) $chat->sendMessage($response);
+            if (isset($response)) $chat->sendMessage($response);
         }
 
 
