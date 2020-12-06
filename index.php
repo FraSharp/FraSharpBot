@@ -17,9 +17,13 @@ $Bot = new Bot("YOUR_BOT_TOKEN", [
     "parse_mode" => 'HTML',     // you can use "Markdown" for Markdown
 ]);
 
-//commands
+// add extra files here
+require "/extras/update-phar.php";
+require "/extras/hastebin-api.php";
+// end extra files
 
 
+// commands
 $Bot->onTextMessage(function (Message $message) {
     try {
         global $Bot;

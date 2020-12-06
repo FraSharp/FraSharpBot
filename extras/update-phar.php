@@ -10,8 +10,8 @@
 
 */
 
-$Bot->onCommand("updatePhar", function ($message) {
+if ($text === "/updatePhar") {
     $message->delete(null, true);  // "null, true" means that you're using json_payload for deleting the message
     unlink("novagram.phar");  // change "novagram.phar" with the name of your .phar file (if you have a different name)
-    $message->reply("I've updated the bot to the latest version");
-});
+    $chat->sendMessage("I've updated the bot to the latest version");
+}
