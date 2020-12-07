@@ -4,6 +4,15 @@
     usage: doit("text");
 */
 
+use skrtdev\Telegram\Message;
+use skrtdev\NovaGram\Bot;
+
+$Bot = new Bot("YOUR_BOT_TOKEN", [
+    "json_payload" => false,        // json_payload: true for enable, false for disable
+    "debug" => YOUR_USER_ID,        // the chat_id/user_id for sending errors
+    "parse_mode" => 'HTML'          // you can use "Markdown" for Markdown
+]);
+
 function get_tiny_url($url)
 {
     $ch = curl_init();

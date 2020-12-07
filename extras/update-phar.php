@@ -20,6 +20,8 @@ $Bot = new Bot("YOUR_BOT_TOKEN", [
 ]);
 
 $Bot->onTextMessage(function (Message $message) {
+    try {
+
     $text = $message->text;
     $chat = $message->chat;
 
@@ -27,5 +29,9 @@ $Bot->onTextMessage(function (Message $message) {
         $message->delete(null, true);  // "null, true" means that you're using json_payload for deleting the message
         unlink("/httpdocs/FraSharpBot/novagram.phar");  // change "novagram.phar" with the name of your .phar file (if you have a different name)
         $chat->sendMessage("I've updated the bot to the latest version of <a href='github.com/skrtdev/novagram'>Novagram</a>");
+    }
+
+    } catch (Throwable $e) {
+    $chat->sendMessage("<b>error code: " . $e->getCode() . "</b>\n\n<b>description: </b>$e");
     }
 });
