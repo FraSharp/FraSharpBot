@@ -68,8 +68,22 @@ $Bot->onTextMessage(function (Message $message) {
 
 
         // command to get Datacenter of user in reply
-        if ($text === "/getUserDc" and ($replyToMessage !== null and $usernameReply !== null)) $chat->sendMessage("@$usernameReply datacenter: " . $userReply->getDC());
-
+        if (($text === "/getUserDc") and ($replyToMessage !== null and $usernameReply !== null)) {
+            $profilePhotos = $Bot->getUserProfilePhotos([
+                "user_id" => $useridReply
+            ]);
+            if ($profilePhotos->total_count > 0 and $message->reply_to_message->from->username != "") {
+                $chat->sendMessage("@" . $usernameReply . " 's datacenter: " . $userReply->getDC());
+            } else {
+                if ($profilePhotos->total_count < 1) {
+                    $chat->sendMessage("@$usernameReply, I can't get your DC, set at least one profile pic");
+                } else {
+                    if ($usernameReply == null) {
+                        $chat->sendMessage("@$usernameReply, I can't get your DC, set an username");
+                    }
+                }
+            }
+        }
 
         // command to pin message in reply
         // "$replyToMessage !== null and $usernameReply !== null"  checks if is a reply
