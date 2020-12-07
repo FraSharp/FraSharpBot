@@ -13,8 +13,9 @@ use skrtdev\Telegram\Message;
 use skrtdev\NovaGram\Bot;
 
 $Bot = new Bot("YOUR_BOT_TOKEN", [
-    "debug" => YOUR_USER_ID,    // your user_id
-    "parse_mode" => 'HTML',     // you can use "Markdown" for Markdown
+    "json_payload" => false,        // json_payload: true for enable, false for disable
+    "debug" => YOUR_USER_ID,        // your user_id
+    "parse_mode" => 'HTML'          // you can use "Markdown" for Markdown
 ]);
 
 // add extra files here
