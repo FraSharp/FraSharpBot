@@ -85,6 +85,7 @@ $Bot->onTextMessage(function (Message $message) {
             }
         }
 
+
         // command to pin message in reply
         // "$replyToMessage !== null and $usernameReply !== null"  checks if is a reply
         if (($text === "/pinMessage") and ($replyToMessage !== null and $usernameReply !== null)) $message->reply_to_message->pin();
@@ -160,14 +161,16 @@ $Bot->onTextMessage(function (Message $message) {
 
 
         // command to list admins of the chat
-        if ($text == "/listAdmins") {
+        if ($text === "/listAdmins" or $text === "/list_admins" or $text === "/list_admins@FraSharp_Bot") {
             $chatAdmins = $chat->getAdministrators($chatid);
 
             $adminsar = [];
             foreach ($chatAdmins as $chatAdmin) {
                 if ($chatAdmin === '[ChatMember]') continue;
-
-                $adminsar[] = "<a href='t.me/{$chatAdmin->user->username}'>@" . ($chatAdmin->user->username) . "</a>\n";
+                $usernameAdmin = $chatAdmin->user->username;
+                if ($usernameAdmin == "") $usernameAdmin = "no username"; else
+                if ($usernameAdmin != "") $usernameAdmin = "@" . $chatAdmin->user->username;
+                $adminsar[] = "<a href='tg://user?id={$chatAdmin->user->id}'>" . ($chatAdmin->user->first_name) . ($chatAdmin->user->last_name) . "</a> | " . ($usernameAdmin) . "\n";
             }
 
             $chat->sendMessage("group admins:\n" . implode("", $adminsar));
@@ -222,6 +225,7 @@ $Bot->onTextMessage(function (Message $message) {
 
 
     } catch (Throwable $e) {
-    $chat->sendMessage("<b>error code: " . $e->getCode() . "</b>\n\n<b>description: </b>$e");
+        $chat->sendMessage("<b>error code: " . $e->getCode() . "</b>\n\n<b>description: </b>$e");
     }
+
 });
