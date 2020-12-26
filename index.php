@@ -20,7 +20,8 @@ $Bot = new Bot("YOUR_BOT_TOKEN", [
 
 // add extra files here
 require "/extras/update-phar.php";
-require "/extras/hastebin-api.php";
+require "/extras/functions.php";
+require "/extras/check.php";
 // end extra files
 
 
@@ -60,6 +61,7 @@ $Bot->onTextMessage(function (Message $message) {
         // example of usage: "/changeTitle i choose this title" the title of the chat will be "i choose this title"
         if (strpos($text, "/changeTitle") === 0) {
             $ai = explode(" ", $text);
+            if (!$ai[1]) { $message->reply("Insert a valid chat title"); die; }
             unset($ai[0]);
             $ei = implode(" ", $ai);
 
@@ -68,7 +70,9 @@ $Bot->onTextMessage(function (Message $message) {
 
 
         // command to get Datacenter of user in reply
-        if (($text === "/getUserDc") and ($replyToMessage !== null and $usernameReply !== null)) {
+        if ($text === "/getUserDc") {
+            if ($replyToMessage === null and $usernameReply === null) { $message->reply("Reply to a message first"); die; }
+
             $profilePhotos = $Bot->getUserProfilePhotos([
                 "user_id" => $useridReply
             ]);
@@ -76,10 +80,10 @@ $Bot->onTextMessage(function (Message $message) {
                 $chat->sendMessage("@" . $usernameReply . " 's datacenter: " . $userReply->getDC());
             } else {
                 if ($profilePhotos->total_count < 1) {
-                    $chat->sendMessage("@$usernameReply, I can't get your DC, set at least one profile pic");
+                    $chat->sendMessage("Can't get @$usernameReply 's datacenter, set a profile picture");
                 } else {
                     if ($usernameReply == null) {
-                        $chat->sendMessage("@$usernameReply, I can't get your DC, set an username");
+                        $chat->sendMessage("Can't get @$usernameReply 's datacenter, set an username");
                     }
                 }
             }
@@ -88,7 +92,7 @@ $Bot->onTextMessage(function (Message $message) {
 
         // command to pin message in reply
         // "$replyToMessage !== null and $usernameReply !== null"  checks if is a reply
-        if (($text === "/pinMessage") and ($replyToMessage !== null and $usernameReply !== null)) $message->reply_to_message->pin();
+        if (($text === "/pinMessage") and ($replyToMessage !== null and $usernameReply !== null) and isAdmin($userid, $chatid)) $message->reply_to_message->pin();
 
 
         // command to unpin the pinned message
@@ -127,36 +131,64 @@ $Bot->onTextMessage(function (Message $message) {
         }
 
 
+        // command to change custom admin's title
+        // usage: /changeAdminTitle customTitle (can use the spaces too)
+        if (strpos($text, "/changeAdminTitle") === 0) {
+            if ($replyToMessage === null and $usernameReply === null) { $message->reply("Reply to a message first"); die; }
+            if (!isAdmin($userid, $chatid)) { $message->reply("You aren't an admin of this chat"); die; }
+            $title = explode(" ", $text);
+            unset($title[0]);
+            $totalChars = "";
+            foreach ($title as $strings) {
+                $totalChars .= $strings;
+                if (strlen($totalChars) > 16) {
+                    $message->reply("The admin's custom title can't be more than 16 characters");
+                    die;
+                }
+            }
+
+            $changeAdminTitle = changeAdminTitle($chatid, $useridReply, $text);
+            if (!$changeAdminTitle) $message->reply("I haven't been able to change admin title");
+        }
+
+
         // command to make admin a user
-        // example: "/promoteMember 1 1 1 1 1"
-        if ((strpos($text, "/promoteMember") === 0) and ($replyToMessage !== null and $usernameReply !== null)) {
-            $ai = str_replace("admin ", "", $text);
-            $ai = explode(" ", $text);
+        if ($text === "/promoteMember") {
+            if ($replyToMessage === null and $usernameReply === null) { $message->reply("Reply to a message first"); die; }
+            if (!isAdmin($userid, $chatid)) { $message->reply("You aren't an admin of this chat"); die; }
+            if (isAdmin($userid, $chatid) and $userid === $useridReply) { $message->reply("You are already an admin"); die; }
+            if (isAdmin($useridReply, $chatid)) { $message->reply("@$usernameReply is already an admin"); die; }
 
-            $Bot->promoteChatMember([
-                "chat_id" => $chatid,
-                "user_id" => $useridReply,
-                "can_change_info" => boolval($ai[0]),
-                "can_delete_messages" => boolval($ai[1]),
-                "can_restrict_members" => boolval($ai[2]),
-                "can_pin_messages" => boolval($ai[3]),
-                "can_promote_members" => boolval($ai[4])
-            ]);
+            $promote = promoteMember($chatid, $useridReply);
 
+            if ($promote) $message->reply("@$usernameReply is now admin");
+        }
+
+
+        // command to make admin a user
+        // example: "/customPromote 1 1 1 1 1"
+        if ((strpos($text, "/customPromote") === 0)) {
+            if ($replyToMessage === null and $usernameReply === null) { $message->reply("Reply to a message first"); die; }
+            if (!isAdmin($userid, $chatid)) { $message->reply("You aren't an admin of this chat"); die; }
+            if (isAdmin($userid, $chatid) and $userid === $useridReply) { $message->reply("You can't promote yourself"); die; }
+            if (isAdmin($useridReply, $chatid)) { $message->reply("@$usernameReply is already an admin"); die; }
+
+            $promote = customPromote($chatid, $useridReply, $text);
+
+            if ($promote) $message->reply("@$usernameReply is now admin");
         }
 
 
         // command to demote an admin to user
-        if ((strpos($text, "/demoteMember") === 0) and ($replyToMessage !== null and $usernameReply !== null)) {
-            $Bot->promoteChatMember([
-                "chat_id" => $chatid,
-                "user_id" => $useridReply,
-                "can_change_info" => false,
-                "can_delete_messages" => false,
-                "can_restrict_members" => false,
-                "can_pin_messages" => false,
-                "can_promote_members" => false
-            ]);
+        if ((strpos($text, "/demoteMember") === 0)) {
+            if ($replyToMessage === null and $usernameReply === null) { $message->reply("Reply to a message first"); die; }
+            if (!isAdmin($userid, $chatid)) { $message->reply("You aren't an admin of this chat"); die; }
+            if (isAdmin($userid, $chatid) and $userid === $useridReply) { $message->reply("You can't demote yourself"); die; }
+            if (!isAdmin($useridReply, $chatid)) { $message->reply("@$usernameReply is not an admin"); die; }
+
+            $demote = demoteMember($chatid, $useridReply);
+
+            if ($demote) $message->reply("@$usernameReply isn't an admin anymore");
         }
 
 
@@ -183,9 +215,9 @@ $Bot->onTextMessage(function (Message $message) {
 
             $isAdmin = in_array($chatMember->status, ["administrator", "creator"]);
 
-            if ($isAdmin) $chat->sendMessage("@" . $usernameReply . " is an admin");
+            if ($isAdmin) $message->reply("@" . $usernameReply . " is an admin");
             else {
-                if (!in_array($chatMember->status, ["administrator", "creator"])) $chat->sendMessage("@" . $usernameReply . " isn't an admin");
+                if (!in_array($chatMember->status, ["administrator", "creator"])) $message->reply("@" . $usernameReply . " isn't an admin");
             }
         }
 

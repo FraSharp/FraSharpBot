@@ -19,15 +19,19 @@ $Bot = new Bot("YOUR_BOT_TOKEN", [
     "parse_mode" => 'HTML'          // you can use "Markdown" for Markdown
 ]);
 
+require "functions.php";
+require "check.php";
+
 $Bot->onTextMessage(function (Message $message) {
     try {
 
     $text = $message->text;
     $chat = $message->chat;
 
+    // command to update the bot
     if ($text === "/updatePhar") {
         $message->delete(null, true);  // "null, true" means that you're using json_payload for deleting the message
-        unlink("/httpdocs/FraSharpBot/novagram.phar");  // change "novagram.phar" with the name of your .phar file (if you have a different name)
+        unlink("/httpdocs/FraSharpBot/novagram.phar");  // change "novagram.phar" with the name of your .phar file (if you have a different name) and change "httpdocs/FraSharpBot" with your directory
         $chat->sendMessage("I've updated the bot to the latest version of <a href='github.com/skrtdev/novagram'>Novagram</a>");
     }
 
