@@ -1,6 +1,6 @@
 <?php
 if (file_exists('vendor')) {
-    require 'vendor/autoload.php';
+    require_once 'vendor/autoload.php';
 }
 else{ //phar
     if (!file_exists('novagram.phar')) {
@@ -12,16 +12,16 @@ else{ //phar
 use skrtdev\Telegram\Message;
 use skrtdev\NovaGram\Bot;
 
-$Bot = new Bot("YOUR_BOT_TOKEN", [
+$Bot = new Bot("722952667:AAE-N5BNWRdDlAZQuNzUsxc7HKuoYHkyphs", [
     "json_payload" => false,        // json_payload: true for enable, false for disable
-    "debug" => YOUR_USER_ID,        // your user_id
+    "debug" => 634408248,        // your user_id
     "parse_mode" => 'HTML'          // you can use "Markdown" for Markdown
 ]);
 
 // add extra files here
-require "/extras/update-phar.php";
-require "/extras/functions.php";
-require "/extras/check.php";
+require_once "extras/update-phar.php";
+require_once "extras/functions.php";
+require_once "extras/check.php";
 // end extra files
 
 
