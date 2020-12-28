@@ -12,9 +12,9 @@ else{ //phar
 use skrtdev\Telegram\Message;
 use skrtdev\NovaGram\Bot;
 
-$Bot = new Bot("722952667:AAE-N5BNWRdDlAZQuNzUsxc7HKuoYHkyphs", [
+$Bot = new Bot("YOUR_BOT_TOKEN", [
     "json_payload" => false,        // json_payload: true for enable, false for disable
-    "debug" => 634408248,        // your user_id
+    "debug" => YOUR_ID,             // your user_id
     "parse_mode" => 'HTML'          // you can use "Markdown" for Markdown
 ]);
 
