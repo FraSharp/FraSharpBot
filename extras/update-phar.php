@@ -12,6 +12,7 @@
 
 require_once "functions.php";
 require_once "check.php";
+global $Bot;
 
 use skrtdev\Telegram\Message;
 
