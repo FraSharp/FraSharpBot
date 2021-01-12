@@ -18,7 +18,7 @@ jobs:
       run: ls
 
     - name: Validate composer.json and composer.lock
-      run: cd ..; cd ..; composer validate
+      run: composer validate
 
     - name: Cache Composer packages
       id: composer-cache
@@ -31,7 +31,7 @@ jobs:
 
     - name: Install dependencies
       if: steps.composer-cache.outputs.cache-hit != 'true'
-      run: cd ..; cd ..; composer install --prefer-dist --no-progress --no-suggest
+      run: composer install --prefer-dist --no-progress --no-suggest
 
     # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
     # Docs: https://getcomposer.org/doc/articles/scripts.md
