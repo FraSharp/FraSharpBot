@@ -202,7 +202,7 @@ $Bot->onTextMessage(function (Message $message) {
                 $usernameAdmin = $chatAdmin->user->username;
                 if ($usernameAdmin == "") $usernameAdmin = "no username"; else
                 if ($usernameAdmin != "") $usernameAdmin = "@" . $chatAdmin->user->username;
-                $adminsar[] = "<a href='tg://user?id={$chatAdmin->user->id}'>" . ($chatAdmin->user->first_name) . ($chatAdmin->user->last_name) . "</a> | " . ($usernameAdmin) . "\n";
+                $adminsar[] = "\n<a href='tg://user?id={$chatAdmin->user->id}'>" . ($chatAdmin->user->first_name) . ($chatAdmin->user->last_name) . "</a> | " . ($usernameAdmin) . "\n";
             }
 
             $chat->sendMessage("group admins:\n" . implode("", $adminsar));
