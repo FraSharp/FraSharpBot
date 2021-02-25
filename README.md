@@ -6,3 +6,4 @@ For setting up the bot visit [Novagram's installation](https://docs.novagram.ga/
 
 A huge thanks goes to [Gaetano - skrtdev](https://github.com/skrtdev/) for helping me and for creating [Novagram](https://github.com/skrtdev/NovaGram).
  
+ 
