@@ -1,0 +1,5 @@
+{
+    "require": {
+        "skrtdev/novagram": "dev-master"
+    }
+}
