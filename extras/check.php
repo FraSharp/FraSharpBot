@@ -29,3 +29,18 @@ function isCreator($userId, $chatId) {
 
     return $isCreator;
 }
+
+
+function hasRight(int $userId, int $chatId, string $rightToCheck) {
+    global $Bot;
+    $hasRight = false;
+
+    $chatMember = $Bot->getChatMember([
+        "chat_id" => $chatId,
+        "user_id" => $userId
+    ]);
+
+    if ($chatMember->$rightToCheck == true) $hasRight = true;
+
+    return $hasRight;
+}
