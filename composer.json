@@ -1,5 +1,9 @@
 {
     "require": {
-        "skrtdev/novagram": "dev-master"
+        "skrtdev/novagram": "dev-master",
+      "ext-curl": "*",
+      "ext-pdo": "*",
+      "ext-zend-opcache": "*",
+      "ext-mysqli": "*"
     }
 }
