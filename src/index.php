@@ -209,7 +209,13 @@ $Bot->onCommand('warn', function (Message $message) {
     elseif (warnMember($chatid, $useridReply) and !is_null($useridReply)) {
         $getWarns = $conn->query("select * from frasharpbot.warns where warns.id = '$useridReply'");
         $currentWarns = $getWarns?->fetch(PDO::FETCH_ASSOC);
-        $message->reply("$mentionUserReply is warned: {$currentWarns['warns']}/3");
+        if ($currentWarns['warns'] <= 3)
+            $message->reply("$mentionUserReply is warned: {$currentWarns['warns']}/3");
+        if ($currentWarns['warns'] >= 3) {
+            kickMember($chatid, $useridReply);
+            $message->chat->sendMessage($mentionUserReply . " kicked. 3 warns limit exceeded");
+            $conn->query("update frasharpbot.warns set warns.warns = 0 where warns.id = '$useridReply'");
+        }
     }
 } catch (\skrtdev\Telegram\BadRequestException $e) { if (str_contains($e, "not enough rights to restrict/unrestrict chat member")) $message->reply("i don't have enough rights"); }
 });
