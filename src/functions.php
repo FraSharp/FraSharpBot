@@ -271,12 +271,14 @@ function kickMember($chatid, $userid) {
 
 function warnMember($chatid, $userid) {
     $conn = new PDO("mysql:host=localhost;dbname=" . getenv("dbname"), getenv("dbuser"), getenv("dbpass"));
-
-    $checkIfUserExistsQuery = $conn->query("select * from frasharpbot.warns where frasharpbot.warns.id = '$userid'");
-    $a = $checkIfUserExistsQuery->fetch(PDO::FETCH_ASSOC);
-    if (in_array($a, [null, false, ""])) {
-        $deleteWarn = $conn->query("delete from frasharpbot.warns where frasharpbot.warns = '$userid'");
-        $addWarn = $conn->query("insert into frasharpbot.warns (id, warns) values ('$userid', $currentWarns + 1)");
+    $getWarns = $conn->query("select * from frasharpbot.warns where warns.id = '$userid'");
+    $currentWarns = $getWarns->fetch(PDO::FETCH_ASSOC);
+    if ($currentWarns['id'] != $userid) {
+        $conn->query("insert into frasharpbot.warns (id, warns) values ('$userid', 1)");
+        return true;
+    } elseif ($currentWarns['warns'] < 3) {
+        $conn->query("update frasharpbot.warns set warns.warns = warns.warns + 1 where warns.id = '$userid'");
+        return true;
     }
 }
 

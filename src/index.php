@@ -68,8 +68,8 @@ $Bot->onCommand('info', function (Message $message) {
 });
 
 $Bot->onMessage(function (Message $message) {
-    if (str_starts_with($message->text, ":sh")) {
-        if (isBotOwner($message->from->id)) {
+    if (!is_null($message->text) and str_starts_with($message->text, ":sh")) {
+        if (isBotOwner($message?->from?->id)) {
             $explode = explode(" ", $message->text);
             unset($explode[0]);
             $command = implode(" ", $explode);
@@ -102,20 +102,20 @@ $Bot->onMessage(function (Message $message) {
     $row = $result->fetch(PDO::FETCH_ASSOC);
 
     try {
-        if ($row['username'] == $username and $row['firstname'] == $firstName and $row['lastname'] == $lastName) {
+        if (isset($row['username']) === isset($username) and isset($row['firstname']) == isset($firstName) and isset($row['lastname']) === isset($lastName)) {
         } else {
-            if ($row['id'] != $userid) {
+            if (isset($row['id']) != isset($userid)) {
                 $insert = "INSERT INTO frasharpbot.user (`user_id`, `username`, `firstname`, `lastname`) VALUES ('$userid', '$username', '$firstName', '$lastName')";
                 $conn->query($insert);
             }
         }
-        if ($row['username'] != $username or $row['firstname'] != $firstName or $row['lastname'] != $lastName) {
-            $deleteRecord = "DELETE FROM frasharpbot.user WHERE id = '$userid'";
+        if ($row['username'] !== $username or $row['firstname'] != $firstName or $row['lastname'] != $lastName) {
+            $deleteRecord = "DELETE FROM frasharpbot.user WHERE user.user_id = '$userid'";
             $conn->query($deleteRecord);
             $insert = "INSERT INTO frasharpbot.user (`user_id`, `username`, `firstname`, `lastname`) VALUES ('$userid', '$username', '$firstName', '$lastName')";
             $conn->query($insert);
         }
-    } catch (PDOException) { echo "duplicate found"; }
+    } catch (PDOException) {}
 });
 
 $Bot->onMessage(function (Message $message) {
@@ -189,6 +189,29 @@ $Bot->onCommand("kick", function (Message $message) {
             if (str_contains($e, "not enough rights to restrict/unrestrict chat member")) $message->reply("i don't have enough rights");
         }
     }
+});
+
+$Bot->onCommand('warn', function (Message $message) {
+    $firstNameReply = $message?->reply_to_message?->from?->first_name;
+    $lastNameReply = $message?->reply_to_message?->from?->last_name;
+    $useridReply = $message?->reply_to_message?->from?->id;
+    $mentionUserReply = "<a href='tg://user?id=$useridReply'>$firstNameReply $lastNameReply</a>";
+    $chatid = $message?->chat?->id;
+    $userid = $message?->from?->id;
+    $useridReply = $message?->reply_to_message?->from?->id;
+    $conn = new PDO("mysql:host=localhost;dbname=" . getenv("dbname"), getenv("dbuser"), getenv("dbpass"));
+
+    try {
+    if (!isAdmin($userid, $chatid) or !hasRight($userid, $chatid, "can_restrict_members")) {
+        $message->reply("you dont have enough rights to warn a user");
+    }
+    elseif (isAdmin($useridReply, $chatid)) { $message->reply($mentionUserReply . " is admin, i can't warn them"); }
+    elseif (warnMember($chatid, $useridReply) and !is_null($useridReply)) {
+        $getWarns = $conn->query("select * from frasharpbot.warns where warns.id = '$useridReply'");
+        $currentWarns = $getWarns?->fetch(PDO::FETCH_ASSOC);
+        $message->reply("$mentionUserReply is warned: {$currentWarns['warns']}/3");
+    }
+} catch (\skrtdev\Telegram\BadRequestException $e) { if (str_contains($e, "not enough rights to restrict/unrestrict chat member")) $message->reply("i don't have enough rights"); }
 });
 
 
