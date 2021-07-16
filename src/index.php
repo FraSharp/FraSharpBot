@@ -29,7 +29,7 @@ $Bot->onCommand('lag', function (Message $message) {
         $start = hrtime(true);
         $lagMex = $message->chat->sendMessage("lag...");
         $time_elapsed_secs = hrtime(true) - $start;
-        $lagMex->editText("method sendMessage: " . round($time_elapsed_secs / 1000000, 2) . " ms", true);
+        $lagMex->editText("elapsed time: " . round($time_elapsed_secs / 1000000, 2) . " ms", true);
 });
 
 $Bot->onCommand('info', function (Message $message) {
@@ -46,7 +46,7 @@ $Bot->onCommand('info', function (Message $message) {
 
     $conn = new PDO("mysql:host=localhost;dbname=" . getenv("dbname"), getenv("dbuser"), getenv("dbpass"));
 
-    if (str_starts_with($message->text, ":info")) {
+    if (str_starts_with($message->text, ":info ")) {
         $uname = str_ireplace(":info @", "", $message->text);
         $idk = $conn->query("select * from frasharpbot.user where user.username = '$uname'");
         $user = $idk->fetch(PDO::FETCH_ASSOC);
@@ -68,14 +68,14 @@ $Bot->onCommand('info', function (Message $message) {
 });
 
 $Bot->onMessage(function (Message $message) {
-    if (!is_null($message->text) and str_starts_with($message->text, ":sh")) {
+    if (str_starts_with($message->text, ":sh")) {
         if (isBotOwner($message?->from?->id)) {
             $explode = explode(" ", $message->text);
             unset($explode[0]);
             $command = implode(" ", $explode);
 
             if (str_contains($command, "rm ")) {
-                $message->reply("can't");
+                $message->reply("you can only delete files manually");
             } else {
 
                 if (PHP_OS_FAMILY == "Windows")
@@ -136,10 +136,10 @@ $Bot->onMessage(function (Message $message) {
 
         $opcache_status = opcache_get_status();
 
-        if (isset($opcache_status["opcache_enabled"]) && !$opcache_status["opcache_enabled"]) {
+        if (isset($opcache_status["opcache_enabled"]) and !$opcache_status["opcache_enabled"]) {
             $opcacheStatus = "❓ opcache empty";
         } else {
-            $refreshCache = $checkCache = opcache_reset() ? "✅" : "❌";
+            $refreshCache = opcache_reset() ? "✅" : "❌";
         }
 
         $refreshStatus = (

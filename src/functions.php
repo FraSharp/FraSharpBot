@@ -238,7 +238,11 @@ function sendUserPic($chatId, $userId, $caption = NULL, $sendAsDocument = false)
             curl_setopt($ch, CURLOPT_FILE, $fp);
             curl_setopt($ch, CURLOPT_TIMEOUT, 10);
             curl_exec($ch);
+            if (curl_errno($ch)) {
+                $error_msg = curl_error($ch);
+            }
             curl_close($ch);
+            if (isset($error_msg)) { }
             fclose($fp);
             //return $Bot->sendDocument(["chat_id" => $chatId, "document" => $downloadPath, "caption" => $caption]);
             return shell_exec("curl -v -F document=@downloads/pic.png https://api.telegram.org/bot" . $botToken . "/sendDocument?chat_id=" . $chatId . "&caption=" . $infos);
