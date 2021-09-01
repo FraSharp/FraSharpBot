@@ -7,9 +7,9 @@ namespace Composer\Autoload;
 class ComposerStaticInit1840198bab08bf2b80e3107df491808e
 {
     public static $files = array (
-        'a4a119a56e50fbb293281d9a48007e0e' => __DIR__ . '/..' . '/symfony/polyfill-php80/bootstrap.php',
         '8cb7937650009ed5c408525cd1ba7e8a' => __DIR__ . '/..' . '/skrtdev/async/src/range.php',
         '926399089c45eec0ff54c4a6aafdb21c' => __DIR__ . '/..' . '/skrtdev/async/src/helpers.php',
+        'a4a119a56e50fbb293281d9a48007e0e' => __DIR__ . '/..' . '/symfony/polyfill-php80/bootstrap.php',
         'b3b3e7b5a7b1f268e2ac5b9be51dba3c' => __DIR__ . '/..' . '/skrtdev/novagram/src/NovaGram/helpers.php',
     );
 
