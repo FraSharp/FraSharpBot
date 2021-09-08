@@ -8,6 +8,7 @@ use skrtdev\Telegram\User;
 require_once("config.php");
 require_once("functions.php");
 require_once("info/info.php");
+require_once("cowsay/cowsay.php");
 
 $Bot = new Bot(getenv("token"), [
     "command_prefixes" => [':'],
@@ -68,7 +69,14 @@ $Bot->onCommand('info', function (Message $message) {
 });
 
 $Bot->onMessage(function (Message $message) {
-    if (str_starts_with($message->text, ":sh")) {
+    if (!is_null($message->text) and str_contains($message->text, ":cowsay") and isBotOwner($message?->from?->id)) {
+        $cowsayText = str_ireplace(":cowsay ", "", $message->text);
+        cowsay($message?->chat?->id, $cowsayText);
+    }
+});
+
+$Bot->onMessage(function (Message $message) {
+    if (!is_null($message->text) and str_contains($message->text, ":sh") and !is_null($message->text)) {
         if (isBotOwner($message?->from?->id)) {
             $explode = explode(" ", $message->text);
             unset($explode[0]);
@@ -82,7 +90,7 @@ $Bot->onMessage(function (Message $message) {
                     $response = shell_exec("powershell; " . $command);
                 else $response = shell_exec($command . " 2<&1");
 
-                if (str_contains($response, "sh:")) {
+                if (!is_null($response) and str_contains($response, "sh:")) {
                     $message->reply("$command, not found");
                 } else
                     if (isset($response)) $message->reply("<pre><b>francesco@MBP-di-Francesco</b>:<b>~ </b></pre>" . $response);
