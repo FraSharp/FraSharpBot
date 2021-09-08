@@ -6,9 +6,10 @@ use skrtdev\Telegram\Message;
 use skrtdev\Telegram\User;
 
 require_once("config.php");
-require_once("functions.php");
-require_once("info/info.php");
-require_once("cowsay/cowsay.php");
+
+foreach ($modules as $module => $active) {
+    if ($active) require_once($module);
+}
 
 $Bot = new Bot(getenv("token"), [
     "command_prefixes" => [':'],
