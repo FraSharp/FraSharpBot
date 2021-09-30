@@ -214,19 +214,19 @@ if (isset($Bot)) {
         $useridReply = $message?->reply_to_message?->from?->id;
 
         try {
-            if (!isAdmin($userid, $chatid) or !hasRight($userid, $chatid, "can_restrict_members")) {
-                $message->reply("you dont have enough rights to warn a user");
-            } elseif (isAdmin($useridReply, $chatid)) {
+            //if (!isAdmin($userid, $chatid) or !hasRight($userid, $chatid, "can_restrict_members")) {
+                //$message->reply("you dont have enough rights to warn a user");
+            if (isAdmin($useridReply, $chatid)) {
                 $message->reply($mentionUserReply . " is admin, i can't warn them");
             } elseif (warnMember($chatid, $useridReply, $PDO) and !is_null($useridReply)) {
-                $getWarns = $PDO->query("select * from frasharpbot.warns where warns.id = '$useridReply'");
+                $getWarns = $PDO->query("select * from frasharpbot.warns where warns.user_id = '$useridReply'");
                 $currentWarns = $getWarns?->fetch(PDO::FETCH_ASSOC);
-                if ($currentWarns['warns'] <= 3)
-                    $message->reply("$mentionUserReply is warned: {$currentWarns['warns']}/3");
-                if ($currentWarns['warns'] >= 3) {
+                if ($currentWarns['warns'] <= getMaxWarns($chatid, $PDO))
+                    $message->reply("$mentionUserReply is warned: {$currentWarns['warns']}/" . getMaxWarns($chatid, $PDO));
+                if (!is_null(getMaxWarns($chatid, $PDO)) and $currentWarns['warns'] >= getMaxWarns($chatid, $PDO)) {
                     kickMember($chatid, $useridReply);
-                    $message->chat->sendMessage($mentionUserReply . " kicked. 3 warns limit exceeded");
-                    $PDO->query("update frasharpbot.warns set warns.warns = 0 where warns.id = '$useridReply'");
+                    $message->chat->sendMessage($mentionUserReply . " kicked. " . getMaxWarns($chatid, $PDO) . " warns limit exceeded");
+                    $PDO->query("update frasharpbot.warns set warns.warns = 0 where warns.user_id = '$useridReply' and warns.chat_id = '$chatid'");
                 }
             }
 
@@ -235,14 +235,15 @@ if (isset($Bot)) {
         }
     });
 
-    $Bot->onCommand('test', function (Message $message) use ($PDO) {
-        $message->chat(getMaxWarns($message->chat->id, $message->from->id, $PDO));
-    });
+    $Bot->onMessage(function (Message $message) use ($PDO) {
+        if (str_starts_with($message->text, ":setMaxWarns")) {
+            $getWarnsVal = explode(" ", $message->text);
+            $maxWarns = intval($getWarnsVal[1]);
 
-    $Bot->onCommand('sticker', function (Message $message) {
-        $message->chat->sendSticker($message->reply_to_message->sticker->file_id);
+            if ($maxWarns > 0 and $maxWarns <= 10)
+                setMaxWarns($message->chat->id, $maxWarns, $PDO);
+        }
     });
-
 
     $Bot->addErrorHandler(function ($e) {
         print('Caught ' . get_class($e) . ' exception from general handler' . PHP_EOL);

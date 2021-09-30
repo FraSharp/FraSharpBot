@@ -19,10 +19,12 @@ $conn->query($sql);
  */
 
 $sql = "CREATE TABLE IF NOT EXISTS frasharpbot.warns (";
-$sql .= "id bigint NOT NULL UNIQUE,";
-$sql .= "chat_id bigint NOT NULL UNIQUE,";
-$sql .= "max_warns bigint NOT NULL UNIQUE,";
-$sql .= "warns int NOT NULL )";
+$sql .= "id int NOT NULL AUTO_INCREMENT,";
+$sql .= "user_id bigint,";
+$sql .= "chat_id bigint,";
+$sql .= "max_warns bigint,";
+$sql .= "warns int,";
+$sql .= "PRIMARY KEY (id));";
 $conn->query($sql);
 
 

@@ -261,7 +261,7 @@ function banMember($chatid, $userid, $revokeMessages) {
 
 function kickMember($chatid, $userid) {
     global $Bot;
-    $Bot->kickChatMember([
+    $Bot->banChatMember([
         "chat_id" => $chatid,
         "user_id" => $userid
     ]);
@@ -271,21 +271,32 @@ function kickMember($chatid, $userid) {
     ]);
 }
 
-function getMaxWarns($chatid, $userid, $PDO) {
-    $getMaxWarnsQuery = $PDO->query("select * from frasharobot.warns where warns.id = '$userid' and where warns.chat_id = '$chatid'");
-    return $getMaxWarnsQuery->fetch(PDO::FETCH_ASSOC)["max_warns"];
+function setMaxWarns($chatid, $warns, $PDO) {
+    $getMaxWarnsQuery = $PDO->query("select * from frasharpbot.warns where warns.chat_id = '$chatid'");
+    $maxWarns = $getMaxWarnsQuery->fetch(PDO::FETCH_ASSOC)["max_warns"];
+
+    if (is_null($maxWarns))
+        return $PDO->query("insert into frasharpbot.warns (chat_id, max_warns) values ('$chatid', '$warns')");
+    else
+        return $PDO->query("update frasharpbot.warns set warns.max_warns = '$warns' where warns.chat_id = '$chatid'");
+}
+
+function getMaxWarns($chatid, $PDO) {
+     $getMaxWarnsQuery = $PDO->query("select * from frasharpbot.warns where warns.chat_id = '$chatid'");
+     return $getMaxWarnsQuery->fetch(PDO::FETCH_ASSOC)["max_warns"];
 }
 
 function warnMember($chatid, $userid, $PDO) {
-    $getWarns = $PDO->query("select * from frasharpbot.warns where warns.id = '$userid' and where warns.chat_id = '$chatid'");
+    $getWarns = $PDO->query("select * from frasharpbot.warns where warns.user_id = '$userid' and warns.chat_id = '$chatid'");
     $currentWarns = $getWarns->fetch(PDO::FETCH_ASSOC);
-    if ($currentWarns['id'] != $userid) {
-        $PDO->query("insert into frasharpbot.warns (id, warns, chat_id) values ('$userid', 1, '$chatid')");
+    if (isset($currentWarns['user_id']) != isset($userid)) {
+        $PDO->query("insert into frasharpbot.warns (user_id, warns, chat_id) values ('$userid', 1, '$chatid')");
         return true;
-    } elseif ($currentWarns['warns'] < getMaxWarns($chatid, $userid, $PDO)) {
-        $PDO->query("update frasharpbot.warns set warns.warns = warns.warns + 1 where warns.id = '$userid' and where warns.chat_id = '$chatid'");
+    } elseif (isset($currentWarns['warns']) < getMaxWarns($chatid, $PDO)) {
+        $PDO->query("update frasharpbot.warns set warns.warns = warns.warns + 1 where warns.user_id = '$userid' and warns.chat_id = '$chatid'");
         return true;
     }
+    return false;
 }
 
 // function to check if a user is an admin of the chat
