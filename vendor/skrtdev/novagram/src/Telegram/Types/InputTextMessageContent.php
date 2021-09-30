@@ -2,16 +2,13 @@
 
 namespace skrtdev\Telegram;
 
-use stdClass;
-use skrtdev\Prototypes\simpleProto;
+use skrtdev\NovaGram\Bot;
 
 /**
  * Represents the content of a text message to be sent as the result of an inline query.
 */
-class InputTextMessageContent extends \Telegram\InputTextMessageContent{
-
-    use simpleProto;
-
+class InputTextMessageContent extends Type{
+    
     /** @var string Text of the message to be sent, 1-4096 characters */
     public string $message_text;
 
@@ -24,7 +21,13 @@ class InputTextMessageContent extends \Telegram\InputTextMessageContent{
     /** @var bool|null Disables link previews for links in the sent message */
     public ?bool $disable_web_page_preview = null;
 
+    public function __construct(array $array, Bot $Bot = null){
+        $this->message_text = $array['message_text'];
+        $this->parse_mode = $array['parse_mode'] ?? null;
+        $this->entities = isset($array['entities']) ? new ObjectsList(iterate($array['entities'], fn($item) => new MessageEntity($item, $Bot))) : null;
+        $this->disable_web_page_preview = $array['disable_web_page_preview'] ?? null;
+        parent::__construct($array, $Bot);
+    }
+    
     
 }
-
-?>

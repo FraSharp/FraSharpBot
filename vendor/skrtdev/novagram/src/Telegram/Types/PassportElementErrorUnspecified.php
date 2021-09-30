@@ -2,16 +2,13 @@
 
 namespace skrtdev\Telegram;
 
-use stdClass;
-use skrtdev\Prototypes\simpleProto;
+use skrtdev\NovaGram\Bot;
 
 /**
  * Represents an issue in an unspecified place. The error is considered resolved when new data is added.
 */
-class PassportElementErrorUnspecified extends \Telegram\PassportElementErrorUnspecified{
-
-    use simpleProto;
-
+class PassportElementErrorUnspecified extends Type{
+    
     /** @var string Error source, must be unspecified */
     public string $source;
 
@@ -24,7 +21,13 @@ class PassportElementErrorUnspecified extends \Telegram\PassportElementErrorUnsp
     /** @var string Error message */
     public string $message;
 
+    public function __construct(array $array, Bot $Bot = null){
+        $this->source = $array['source'];
+        $this->type = $array['type'];
+        $this->element_hash = $array['element_hash'];
+        $this->message = $array['message'];
+        parent::__construct($array, $Bot);
+    }
+    
     
 }
-
-?>

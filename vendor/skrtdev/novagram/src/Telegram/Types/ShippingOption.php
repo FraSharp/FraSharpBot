@@ -2,16 +2,13 @@
 
 namespace skrtdev\Telegram;
 
-use stdClass;
-use skrtdev\Prototypes\simpleProto;
+use skrtdev\NovaGram\Bot;
 
 /**
  * This object represents one shipping option.
 */
-class ShippingOption extends \Telegram\ShippingOption{
-
-    use simpleProto;
-
+class ShippingOption extends Type{
+    
     /** @var string Shipping option identifier */
     public string $id;
 
@@ -21,7 +18,12 @@ class ShippingOption extends \Telegram\ShippingOption{
     /** @var ObjectsList List of price portions */
     public ObjectsList $prices;
 
+    public function __construct(array $array, Bot $Bot = null){
+        $this->id = $array['id'];
+        $this->title = $array['title'];
+        $this->prices = new ObjectsList(iterate($array['prices'], fn($item) => new LabeledPrice($item, $Bot)));
+        parent::__construct($array, $Bot);
+    }
+    
     
 }
-
-?>

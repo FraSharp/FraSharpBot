@@ -2,6 +2,10 @@
 
 namespace skrtdev\NovaGram;
 
+use Generator;
+use skrtdev\NovaGram\Database\{DatabaseInterface, MySQLDatabase, SQLiteDatabase};
+use ReflectionFunction;
+
 class Utils{
 
     const EXCLUDE_FILES = ['..', '.', 'vendor'];
@@ -14,6 +18,7 @@ class Utils{
     ];
 
     public static ?bool $is_cli = null;
+    protected static array $included_files;
 
     public static function IPInRange(string $ip, string $range): bool
     {
@@ -39,16 +44,19 @@ class Utils{
     }
     public static function getIDByToken(string $token): int
     {
-        preg_match('/^(\d{5,12}):[\w\d_-]{30,50}$/', $token, $matches);
+        preg_match('/^(\d{5,20}):[\w\d_-]{30,50}$/', $token, $matches);
         return (int) $matches[0];
     }
 
     public static function trigger_error(string $error_msg, int $error_type = E_USER_NOTICE): void
     {
-        $debug_backtrace = debug_backtrace(!DEBUG_BACKTRACE_PROVIDE_OBJECT | DEBUG_BACKTRACE_IGNORE_ARGS);
-        #$caller = end($debug_backtrace);
-        $caller = $debug_backtrace[1];
-        trigger_error($error_msg." in {$caller['file']}:{$caller['line']}", $error_type);
+        $debug_backtrace = debug_backtrace(~DEBUG_BACKTRACE_PROVIDE_OBJECT | DEBUG_BACKTRACE_IGNORE_ARGS);
+        foreach ($debug_backtrace as $caller) {
+            if(!str_contains($caller['file'], 'vendor/skrtdev')){
+                break;
+            }
+        }
+        trigger_error("$error_msg in {$caller['file']} on line {$caller['line']}".PHP_EOL.'thrown', $error_type); // PHP_EOL so PHPStorm shows path as clickable
     }
 
     public static function var_dump($mixed): string
@@ -70,10 +78,14 @@ class Utils{
         return self::$is_cli ??= http_response_code() === false;
     }
 
-    public static function getFileSHA(): string
+    public static function getFilesHash(): string
     {
-        $file = file_get_contents(realpath($_SERVER['SCRIPT_FILENAME']));
-        return hash("sha256", $file);
+        self::$included_files ??= get_included_files();
+        $hash = '';
+        foreach (self::$included_files as $path) {
+            $hash .= hash('sha256', @file_get_contents($path));
+        }
+        return hash('sha256', $hash);
     }
 
     public static function curl(string $url, array $data = []): string
@@ -104,7 +116,7 @@ class Utils{
         return true;
     }
 
-    public static function getClassHandlersPaths(string $directory = '.'): \Generator
+    public static function getClassHandlersPaths(string $directory = '.'): Generator
     {
         $directory = realpath($directory).'/';
         foreach (array_diff(scandir($directory), self::EXCLUDE_FILES) as $filename) {
@@ -120,7 +132,7 @@ class Utils{
         }
     }
 
-    public static function getCommandHandlersPaths(string $directory = '.'): \Generator
+    public static function getCommandHandlersPaths(string $directory = '.'): Generator
     {
         $directory = realpath($directory).'/';
         foreach (array_diff(scandir($directory), self::EXCLUDE_FILES) as $filename) {
@@ -136,7 +148,7 @@ class Utils{
         }
     }
 
-    public static function getCallbackHandlersPaths(string $directory = '.'): \Generator
+    public static function getCallbackHandlersPaths(string $directory = '.'): Generator
     {
         $directory = realpath($directory).'/';
         foreach (array_diff(scandir($directory), self::EXCLUDE_FILES) as $filename) {
@@ -157,6 +169,44 @@ class Utils{
         return str_starts_with($string, '/') && str_ends_with($string, '/');
     }
 
-}
+    public static function isPHP8(): bool
+    {
+        return PHP_MAJOR_VERSION >= 8;
+    }
 
-?>
+    /**
+     * @throws Exception
+     */
+    public static function ArrayToDatabaseInterface(array $array): DatabaseInterface
+    {
+        $driver = $array['driver'] ?? 'mysql';
+        $array['host'] ??= 'localhost:3306';
+        $array['prefix'] ??= 'novagram';
+        if($driver === 'sqlite' || $driver === 'sqlite3'){
+            return new SQLiteDatabase($array['host'], $array['prefix']);
+        }
+        elseif($driver === 'mysql'){
+            return new MySQLDatabase($array['host'], $array['dbname'], $array['dbuser'], $array['dbpass'], $array['prefix']);
+        }
+        else throw new Exception("Unknown driver $driver, create your own class or file an issue on GitHub <https://github.com/skrtdev/NovaGram>");
+    }
+
+    /**
+     * @param callable $callable
+     * @return FilterInterface[]
+     */
+    public static function getFilters(callable $callable): array
+    {
+        if(!self::isPHP8()) return [];
+        /** @var FilterInterface[] $result */
+        $result = [];
+        $reflection = new ReflectionFunction($callable);
+        foreach ($reflection->getAttributes() as $attribute) {
+            if(is_a($attribute->getName(), FilterInterface::class, true)){
+                $result []= $attribute->newInstance();
+            }
+        }
+        return $result;
+    }
+
+}

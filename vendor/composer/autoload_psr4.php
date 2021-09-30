@@ -8,6 +8,7 @@ $baseDir = dirname($vendorDir);
 return array(
     'skrtdev\\async\\' => array($vendorDir . '/skrtdev/async/src'),
     'skrtdev\\Telegram\\' => array($vendorDir . '/skrtdev/novagram/src/Telegram/Types', $vendorDir . '/skrtdev/novagram/src/Telegram/Exceptions'),
+    'skrtdev\\Prototypes\\' => array($vendorDir . '/skrtdev/prototypes/src'),
     'skrtdev\\' => array($vendorDir . '/skrtdev/novagram/src'),
     'Symfony\\Polyfill\\Php80\\' => array($vendorDir . '/symfony/polyfill-php80'),
     'Psr\\Log\\' => array($vendorDir . '/psr/log/src'),

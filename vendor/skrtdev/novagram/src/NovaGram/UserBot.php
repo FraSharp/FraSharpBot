@@ -6,9 +6,9 @@ use skrtdev\Telegram\{UnauthorizedException, BadRequestException};
 
 class UserBot extends Bot{
 
-    public function __construct(string $token, array $settings = [], ?Logger $logger = null, ...$kwargs) {
-        $this->settings = $this->normalizeSettings(['export_commands' => false, 'disable_ip_check' => true] + $settings + $kwargs + ['bot_api_url' => 'https://botapi.giuseppem99.xyz']);
-        $this->initializeLogger($logger);
+    public function __construct(string $token, array $settings = [], ...$kwargs) {
+        $this->settings = self::normalizeSettings(['export_commands' => false, 'disable_ip_check' => true] + $settings + $kwargs + ['bot_api_url' => 'https://botapi.giuseppem99.xyz']);
+        $this->initializeLogger();
 
         if(!Utils::isTokenValid($token)){
             $path = realpath('.');
@@ -23,7 +23,7 @@ class UserBot extends Bot{
             }
             else{
                 if(Utils::isCLI()){
-                    print("Insert phone number: ");
+                    echo 'Insert phone number: ';
 
                     while(true){
                         $phone_number = trim(str_replace(["+", " "], "", fgets(STDIN)));
@@ -34,7 +34,7 @@ class UserBot extends Bot{
                             break;
                         }
                         catch(UnauthorizedException $e){
-                            print("Invalid phone number, retry: ");
+                            echo 'Invalid phone number, retry: ';
                         }
                     }
 
@@ -42,7 +42,7 @@ class UserBot extends Bot{
                     $this->initializeEndpoint();
 
 
-                    print("Insert code: ");
+                    echo 'Insert code: ';
                     while(true){
                         $code = (int) fgets(STDIN);
                         try{
@@ -50,12 +50,12 @@ class UserBot extends Bot{
                             break;
                         }
                         catch(BadRequestException $e){
-                            print("Invalid code, retry: ");
+                            echo 'Invalid code, retry: ';
                         }
                     }
 
                     if($result->authorization_state === "wait_password"){
-                        print(isset($result->password_hint) ? "Insert 2fa password (hint: {$result->password_hint}): " : "Insert 2fa password: ");
+                        echo isset($result->password_hint) ? "Insert 2fa password (hint: $result->password_hint): " : 'Insert 2fa password: ';
                         while(true){
                             $password = trim(fgets(STDIN));
                             try{
@@ -63,17 +63,17 @@ class UserBot extends Bot{
                                 break;
                             }
                             catch(BadRequestException $e){
-                                print("Wrong password, retry: ");
+                                echo 'Wrong password, retry: ';
                             }
                         }
                     }
 
-                    file_put_contents("$token.token", $real_token);
+                    file_put_contents("$token.token".random_string(), $real_token);
                     $this->processSettings();
                 }
                 else{
                     file_put_contents('method.php', file_get_contents(__DIR__.'/WebLogin/method.php'));
-                    echo sprintf('<script type="text/javascript">'.file_get_contents(__DIR__.'/WebLogin/JSLogin.js').'</script>', $this->settings->bot_api_url, $token);
+                    printf('<script type="text/javascript">'.file_get_contents(__DIR__.'/WebLogin/JSLogin.js').'</script>', $this->settings->bot_api_url, $token);
                     exit();
                 }
             }
@@ -88,15 +88,12 @@ class UserBot extends Bot{
 
     protected function initializeEndpoint(): void
     {
-        $this->endpoint = trim($this->settings->bot_api_url, '/')."/user{$this->token}/";
+        $this->endpoint = trim($this->settings->bot_api_url, '/')."/user$this->token/";
     }
 
-    // try to delete this function: you'll discover php is broken 
     protected function initializeToken(string $token): void
     {
         $this->token = trim($token);
         $this->id = Utils::getIDByToken($token);
     }
 }
-
-?>

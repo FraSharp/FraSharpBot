@@ -204,17 +204,17 @@
         },
         {
             "name": "skrtdev/novagram",
-            "version": "dev-master",
-            "version_normalized": "dev-master",
+            "version": "v2.x-dev",
+            "version_normalized": "2.9999999.9999999.9999999-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/skrtdev/NovaGram.git",
-                "reference": "2902b16223e5714d7c6650f7621b556c0bb0054a"
+                "reference": "80078d7d4f62ae8cf2918c85dae9e962b573d700"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/skrtdev/NovaGram/zipball/2902b16223e5714d7c6650f7621b556c0bb0054a",
-                "reference": "2902b16223e5714d7c6650f7621b556c0bb0054a",
+                "url": "https://api.github.com/repos/skrtdev/NovaGram/zipball/80078d7d4f62ae8cf2918c85dae9e962b573d700",
+                "reference": "80078d7d4f62ae8cf2918c85dae9e962b573d700",
                 "shasum": ""
             },
             "require": {
@@ -223,15 +223,16 @@
                 "monolog/monolog": "^2.1",
                 "php": ">=7.4",
                 "skrtdev/async": "^1.0",
+                "skrtdev/prototypes": "^1.0",
                 "symfony/polyfill-php80": "^1.22"
             },
             "suggest": {
+                "danog/tg-file-decoder": "DC resolver helper",
                 "ext-mbstring": "Needed to use the built-in Telegram Entites Parser",
                 "ext-pcntl": "Needed to process updates with multi-processing",
                 "ext-pdo": "Needed to use the built-in Database"
             },
-            "time": "2021-06-25T13:45:26+00:00",
-            "default-branch": true,
+            "time": "2021-09-19T14:33:07+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -242,9 +243,6 @@
                     ],
                     "skrtdev\\": "src/"
                 },
-                "classmap": [
-                    "src/bc"
-                ],
                 "files": [
                     "src/NovaGram/helpers.php"
                 ]
@@ -263,9 +261,57 @@
             "description": "An Object-Oriented PHP Library for Telegram Bots",
             "support": {
                 "issues": "https://github.com/skrtdev/NovaGram/issues",
-                "source": "https://github.com/skrtdev/NovaGram/tree/master"
+                "source": "https://github.com/skrtdev/NovaGram/tree/v2"
             },
             "install-path": "../skrtdev/novagram"
+        },
+        {
+            "name": "skrtdev/prototypes",
+            "version": "v1.1",
+            "version_normalized": "1.1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/skrtdev/prototypes.git",
+                "reference": "482d875fd0fc6fb088f64590a90f8f8e73344e90"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/skrtdev/prototypes/zipball/482d875fd0fc6fb088f64590a90f8f8e73344e90",
+                "reference": "482d875fd0fc6fb088f64590a90f8f8e73344e90",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.4 | ^8"
+            },
+            "require-dev": {
+                "php": "^8",
+                "phpunit/phpunit": "^9"
+            },
+            "time": "2021-06-28T10:30:56+00:00",
+            "type": "library",
+            "installation-source": "dist",
+            "autoload": {
+                "psr-4": {
+                    "skrtdev\\Prototypes\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Gaetano Sutera",
+                    "email": "gaetanosutera@yahoo.it",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A simple library that make possible to dinamically add methods to classes",
+            "support": {
+                "issues": "https://github.com/skrtdev/prototypes/issues",
+                "source": "https://github.com/skrtdev/prototypes/tree/v1.1"
+            },
+            "install-path": "../skrtdev/prototypes"
         },
         {
             "name": "symfony/polyfill-php80",

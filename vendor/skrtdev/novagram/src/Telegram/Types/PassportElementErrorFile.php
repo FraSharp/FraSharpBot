@@ -2,16 +2,13 @@
 
 namespace skrtdev\Telegram;
 
-use stdClass;
-use skrtdev\Prototypes\simpleProto;
+use skrtdev\NovaGram\Bot;
 
 /**
  * Represents an issue with a document scan. The error is considered resolved when the file with the document scan changes.
 */
-class PassportElementErrorFile extends \Telegram\PassportElementErrorFile{
-
-    use simpleProto;
-
+class PassportElementErrorFile extends Type{
+    
     /** @var string Error source, must be file */
     public string $source;
 
@@ -24,7 +21,13 @@ class PassportElementErrorFile extends \Telegram\PassportElementErrorFile{
     /** @var string Error message */
     public string $message;
 
+    public function __construct(array $array, Bot $Bot = null){
+        $this->source = $array['source'];
+        $this->type = $array['type'];
+        $this->file_hash = $array['file_hash'];
+        $this->message = $array['message'];
+        parent::__construct($array, $Bot);
+    }
+    
     
 }
-
-?>

@@ -13,14 +13,11 @@ use skrtdev\NovaGram\Bot;
 use skrtdev\Telegram\{Message, CallbackQuery};
 
 $Bot = new Bot('YOUR_TOKEN', [
-    'debug' => YOURCHATID, // chat id where debug will be sent when api errors occurs
     'parse_mode' => 'HTML' // will set parse_mode automatically in methods that require it if not providedå
 ]);
 
 $Bot->onTextMessage(function (Message $message) use ($Bot) { // update is a message and contains text
-
     $chat = $message->chat;
-    $user = $message->from;
     $text = $message->text;
 
     $chat->sendMessage("Text: \n<code>$text</code>", [ // send a Message in the Chat
@@ -47,16 +44,10 @@ $Bot->onTextMessage(function (Message $message) use ($Bot) { // update is a mess
 });
 
 $Bot->onCallbackQuery(function (CallbackQuery $callback_query) use ($Bot) { // update is a callback query
-
-    $user = $callback_query->from;
     $message = $callback_query->message;
-    $chat = $message->chat;
 
     $callback_query->answer('Encoded!'); // answer this CallbackQuery
-
     $message->editText($callback_query->data, true); // edit previously sent Message text with the data of this CallbackQuery
-
 });
 
 $Bot->start();
-?>

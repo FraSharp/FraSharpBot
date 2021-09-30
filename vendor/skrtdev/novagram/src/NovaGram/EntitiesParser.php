@@ -20,7 +20,8 @@ class EntitiesParser{
     const SKIP_ENTITES = [
         'bot_command',
         'mention',
-        'url'
+        'url',
+        'hashtag'
     ];
 
 
@@ -39,7 +40,7 @@ class EntitiesParser{
                 if($type === $entity_type) $tag = $html_tag;
             }
             if(!isset($tag)){
-                throw new Exception("Could not parse Message Entities: not found entity '$type', please report issue - https://novagram.ga");
+                if(Utils::isCLI()) echo "Could not parse Message Entities: not found entity '$type', please report issue - https://novagram.ga", PHP_EOL;
             }
 
             if ($type === "text_link") $openTag = "<$tag href='{$entity->url}'>";

@@ -2,16 +2,13 @@
 
 namespace skrtdev\Telegram;
 
-use stdClass;
-use skrtdev\Prototypes\simpleProto;
+use skrtdev\NovaGram\Bot;
 
 /**
  * Represents an issue with the front side of a document. The error is considered resolved when the file with the front side of the document changes.
 */
-class PassportElementErrorFrontSide extends \Telegram\PassportElementErrorFrontSide{
-
-    use simpleProto;
-
+class PassportElementErrorFrontSide extends Type{
+    
     /** @var string Error source, must be front_side */
     public string $source;
 
@@ -24,7 +21,13 @@ class PassportElementErrorFrontSide extends \Telegram\PassportElementErrorFrontS
     /** @var string Error message */
     public string $message;
 
+    public function __construct(array $array, Bot $Bot = null){
+        $this->source = $array['source'];
+        $this->type = $array['type'];
+        $this->file_hash = $array['file_hash'];
+        $this->message = $array['message'];
+        parent::__construct($array, $Bot);
+    }
+    
     
 }
-
-?>
