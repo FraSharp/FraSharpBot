@@ -10,6 +10,6 @@ return array(
     'skrtdev\\Telegram\\' => array($vendorDir . '/skrtdev/novagram/src/Telegram/Types', $vendorDir . '/skrtdev/novagram/src/Telegram/Exceptions'),
     'skrtdev\\' => array($vendorDir . '/skrtdev/novagram/src'),
     'Symfony\\Polyfill\\Php80\\' => array($vendorDir . '/symfony/polyfill-php80'),
-    'Psr\\Log\\' => array($vendorDir . '/psr/log/Psr/Log'),
+    'Psr\\Log\\' => array($vendorDir . '/psr/log/src'),
     'Monolog\\' => array($vendorDir . '/monolog/monolog/src/Monolog'),
 );
