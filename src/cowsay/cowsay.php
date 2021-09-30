@@ -11,7 +11,6 @@ function cowsay($chatid, $text)
             "text" => "`" . $response . "`",
             "parse_mode" => "Markdown"
         ]);
-    } else {
-        return false;
     }
+    return false;
 }

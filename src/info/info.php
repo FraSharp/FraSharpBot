@@ -1,8 +1,6 @@
 <?php
 
-function getUserInfo($chatid, $userid, $username, $firstName, $lastName) {
-    global $Bot;
-
+function getUserInfo($Bot, $chatid, $userid, $username, $firstName, $lastName) {
     $infos = "❓ informations about the user: ";
     $infos .= "\n\n🆔 <pre>user id:</pre> $userid";
 

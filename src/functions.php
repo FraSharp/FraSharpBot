@@ -1,5 +1,4 @@
 <?php
-
 // function to demote a member
 function demoteMember(int $chatId, int $userId) {
     global $Bot;
@@ -218,7 +217,7 @@ function isGbanned($userId) {
 }
 
 
-function sendUserPic($chatId, $userId, $caption = NULL, $sendAsDocument = false) {
+function sendUserPic($chatId, $userId, $caption = NULL, $sendAsDocument = false, $infos = NULL) {
     global $Bot;
 
     $userPic = $Bot->getUserProfilePhotos(["user_id" => $userId, "limit" => 1]);
@@ -242,7 +241,6 @@ function sendUserPic($chatId, $userId, $caption = NULL, $sendAsDocument = false)
                 $error_msg = curl_error($ch);
             }
             curl_close($ch);
-            if (isset($error_msg)) { }
             fclose($fp);
             //return $Bot->sendDocument(["chat_id" => $chatId, "document" => $downloadPath, "caption" => $caption]);
             return shell_exec("curl -v -F document=@downloads/pic.png https://api.telegram.org/bot" . $botToken . "/sendDocument?chat_id=" . $chatId . "&caption=" . $infos);
@@ -273,15 +271,19 @@ function kickMember($chatid, $userid) {
     ]);
 }
 
-function warnMember($chatid, $userid) {
-    $conn = new PDO("mysql:host=localhost;dbname=" . getenv("dbname"), getenv("dbuser"), getenv("dbpass"));
-    $getWarns = $conn->query("select * from frasharpbot.warns where warns.id = '$userid'");
+function getMaxWarns($chatid, $userid, $PDO) {
+    $getMaxWarnsQuery = $PDO->query("select * from frasharobot.warns where warns.id = '$userid' and where warns.chat_id = '$chatid'");
+    return $getMaxWarnsQuery->fetch(PDO::FETCH_ASSOC)["max_warns"];
+}
+
+function warnMember($chatid, $userid, $PDO) {
+    $getWarns = $PDO->query("select * from frasharpbot.warns where warns.id = '$userid' and where warns.chat_id = '$chatid'");
     $currentWarns = $getWarns->fetch(PDO::FETCH_ASSOC);
     if ($currentWarns['id'] != $userid) {
-        $conn->query("insert into frasharpbot.warns (id, warns) values ('$userid', 1)");
+        $PDO->query("insert into frasharpbot.warns (id, warns, chat_id) values ('$userid', 1, '$chatid')");
         return true;
-    } elseif ($currentWarns['warns'] < 3) {
-        $conn->query("update frasharpbot.warns set warns.warns = warns.warns + 1 where warns.id = '$userid'");
+    } elseif ($currentWarns['warns'] < getMaxWarns($chatid, $userid, $PDO)) {
+        $PDO->query("update frasharpbot.warns set warns.warns = warns.warns + 1 where warns.id = '$userid' and where warns.chat_id = '$chatid'");
         return true;
     }
 }
