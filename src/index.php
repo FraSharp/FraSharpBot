@@ -12,17 +12,20 @@ if (isset($modules))
     }
 
 if (isset($dbname, $dbpass, $dbuser)) {
-    $Bot = new Bot(getenv("token"), [
-        "command_prefixes" => [':'],
-        "skip_old_updates" => true,
-        "threshold" => 50,
-        "parse_mode" => "HTML",
-        "database" => [
-            "dbname" => $dbname,
-            "dbuser" => $dbuser,
-            "dbpass" => $dbpass
-        ]
-    ]);
+    try {
+        $Bot = new Bot(getenv("token"), [
+            "command_prefixes" => [':'],
+            "skip_old_updates" => true,
+            "threshold" => 50,
+            "parse_mode" => "HTML",
+            "database" => [
+                "dbname" => $dbname,
+                "dbuser" => $dbuser,
+                "dbpass" => $dbpass
+            ]
+        ]);
+    } catch (\skrtdev\NovaGram\Exception $e) {
+    }
 }
 
 $PDO = new PDO("mysql:host=localhost;dbname=" . getenv("dbname"), getenv("dbuser"), getenv("dbpass"));
@@ -215,15 +218,15 @@ if (isset($Bot)) {
 
         try {
             //if (!isAdmin($userid, $chatid) or !hasRight($userid, $chatid, "can_restrict_members")) {
-                //$message->reply("you dont have enough rights to warn a user");
+                //$message->reply("you don't have enough rights to warn a user");
             if (isAdmin($useridReply, $chatid)) {
                 $message->reply($mentionUserReply . " is admin, i can't warn them");
             } elseif (warnMember($chatid, $useridReply, $PDO) and !is_null($useridReply)) {
-                $getWarns = $PDO->query("select * from frasharpbot.warns where warns.user_id = '$useridReply'");
+                $getWarns = $PDO->query("select * from frasharpbot.warns where warns.user_id = '$useridReply' and warns.chat_id = '$chatid'");
                 $currentWarns = $getWarns?->fetch(PDO::FETCH_ASSOC);
                 if ($currentWarns['warns'] <= getMaxWarns($chatid, $PDO))
                     $message->reply("$mentionUserReply is warned: {$currentWarns['warns']}/" . getMaxWarns($chatid, $PDO));
-                if (!is_null(getMaxWarns($chatid, $PDO)) and $currentWarns['warns'] >= getMaxWarns($chatid, $PDO)) {
+                if (!is_null(getMaxWarns($chatid, $PDO)) and $currentWarns['warns'] == getMaxWarns($chatid, $PDO)) {
                     kickMember($chatid, $useridReply);
                     $message->chat->sendMessage($mentionUserReply . " kicked. " . getMaxWarns($chatid, $PDO) . " warns limit exceeded");
                     $PDO->query("update frasharpbot.warns set warns.warns = 0 where warns.user_id = '$useridReply' and warns.chat_id = '$chatid'");

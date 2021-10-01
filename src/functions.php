@@ -1,6 +1,9 @@
 <?php
 // function to demote a member
-function demoteMember(int $chatId, int $userId) {
+use skrtdev\Telegram\Message;
+
+function demoteMember(int $chatId, int $userId): ?bool
+{
     global $Bot;
 
     return $Bot->promoteChatMember([
@@ -17,7 +20,8 @@ function demoteMember(int $chatId, int $userId) {
 
 
 // function to demote a member
-function muteMember(int $chatId, int $userId) {
+function muteMember(int $chatId, int $userId): ?bool
+{
     global $Bot;
 
     return $Bot->restrictChatMember([
@@ -33,7 +37,8 @@ function muteMember(int $chatId, int $userId) {
 
 
 // function to demote a member
-function unmuteMember(int $chatId, int $userId) {
+function unmuteMember(int $chatId, int $userId): ?bool
+{
     global $Bot;
 
     return $Bot->restrictChatMember([
@@ -49,7 +54,8 @@ function unmuteMember(int $chatId, int $userId) {
 
 
 // function to promote a member
-function promoteMember(int $chatId, int $userId) {
+function promoteMember(int $chatId, int $userId): ?bool
+{
     global $Bot;
 
     return $Bot->promoteChatMember([
@@ -65,7 +71,8 @@ function promoteMember(int $chatId, int $userId) {
 
 
 // function to custom promote a member
-function customPromote($chatId, $userId, $text) {
+function customPromote($chatId, $userId, $text): ?bool
+{
     global $Bot;
     $ai = explode(" ", $text);
     unset($ai[0]);
@@ -81,96 +88,9 @@ function customPromote($chatId, $userId, $text) {
     ]);
 }
 
-
-// function to get json from a webpage with cURL
-function get_json($url){
-    $base = "https://api.github.com/";
-    $curl = curl_init();
-    curl_setopt($curl, CURLOPT_URL, $base . $url);
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-
-    $content = curl_exec($curl);
-    curl_close($curl);
-    return $content;
-}
-
-
-// function to get tiny url of a text
-function get_tiny_url($url)
-{
-    $ch = curl_init();
-    $timeout = 5;
-    curl_setopt($ch, CURLOPT_URL, 'http://tinyurl.com/api-create.php?url=' . $url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
-    $data = curl_exec($ch);
-    curl_close($ch);
-    return $data;
-}
-
-
-// function to create an hastebin with a text
-function do_hastebin_file($text)
-{
-    $url = 'https://hastebin.com/documents';
-    $ch = curl_init($url);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, array('data' => $text));
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($ch, CURLOPT_VERBOSE, 1);
-    curl_setopt($ch, CURLOPT_NOBODY, 0);
-
-    $normal = "https://hastebin.com/";
-    $r = json_decode(curl_exec($ch), TRUE);
-    $normal .= $r["key"];
-    $raw = str_replace('com/', 'com/raw/', $normal);
-    curl_close($ch);
-    //return array(get_tiny_url($normal), get_tiny_url($raw));
-    return $r;
-}
-
-
-function hastebin($text) {
-    $curl = curl_init();
-
-    curl_setopt_array($curl, array(
-        CURLOPT_URL => "https://hastebin.com/documents",
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_ENCODING => "",
-        CURLOPT_MAXREDIRS => 10,
-        CURLOPT_TIMEOUT => 30,
-        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_POSTFIELDS => array('data' => $text),
-        CURLOPT_HTTPHEADER => array(
-            "accept: application/json, text/javascript, */*; q=0.01",
-            "cache-control: no-cache",
-            "content-type: application/json; charset=UTF-8",
-            "origin: https://hastebin.com",
-            "user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36",
-            "x-requested-with: XMLHttpRequest"
-        ),
-    ));
-
-    $response = curl_exec($curl);
-    $err = curl_error($curl);
-    $response_array = json_decode($response, true);
-
-    curl_close($curl);
-
-    if ($err) {
-        echo "cURL Error #:" . $err;
-    } else {
-        //echo $response_array['key'];
-        //return $result = "https://hastebin.com/" . $response_array['key'];
-        return $response_array;
-    }
-
-}
-
-
 // function to search into a json file
-function idFromJson($json, $userid) {
+function idFromJson($json, $userid): bool
+{
     $isHere = false;
     foreach ($json as $id) {
         if ($id == $userid) $isHere = true;
@@ -178,7 +98,8 @@ function idFromJson($json, $userid) {
     return $isHere;
 }
 
-function isAllowed($userId) {
+function isAllowed($userId): bool
+{
     $perm = json_decode(file_get_contents(__DIR__ . "/elevated/elevated.json"));
 
     (idFromJson($perm->allowed_users->id, $userId)) ? $isAllowed = true : $isAllowed = false;
@@ -187,7 +108,8 @@ function isAllowed($userId) {
 }
 
 
-function isBotOwner($userId) {
+function isBotOwner($userId): bool
+{
     $perm = json_decode(file_get_contents(__DIR__ . "/elevated/elevated.json"));
 
     (idFromJson($perm->owner->id, $userId)) ? $isOwner = true : $isOwner = false;
@@ -196,19 +118,20 @@ function isBotOwner($userId) {
 }
 
 
-function isBotSudo($userId) {
-    if (isAllowed($userId) or isBotOwner($userId)) {
+function isBotSudo($userId): bool
+{
+    if (isAllowed($userId) or isBotOwner($userId))
         return true;
-    } else {
-        return false;
-    }
+
+    return false;
 }
 
 
-function isGbanned($userId) {
+function isGbanned($userId): bool
+{
     $conn = new PDO("mysql:host=localhost;dbname=" . getenv("dbname"), getenv("dbuser"), getenv("dbpass"));
 
-    $gbanQuery = "SELECT * FROM `frasharpbot`.`banned` WHERE `id` = '$userId'";
+    $gbanQuery = "SELECT * FROM frasharpbot.banned WHERE warns.user_id = '$userId'";
     $gbanResult = $conn->query($gbanQuery);
     $gbanRow = $gbanResult->fetch(PDO::FETCH_ASSOC);
     (isset($gbanRow['id']) === $userId) ? $userIsGbanned = true : $userIsGbanned = false;
@@ -217,7 +140,8 @@ function isGbanned($userId) {
 }
 
 
-function sendUserPic($chatId, $userId, $caption = NULL, $sendAsDocument = false, $infos = NULL) {
+function sendUserPic($chatId, $userId, $caption = NULL, $sendAsDocument = false, $infos = NULL): Message|bool|string|null
+{
     global $Bot;
 
     $userPic = $Bot->getUserProfilePhotos(["user_id" => $userId, "limit" => 1]);
@@ -238,7 +162,7 @@ function sendUserPic($chatId, $userId, $caption = NULL, $sendAsDocument = false,
             curl_setopt($ch, CURLOPT_TIMEOUT, 10);
             curl_exec($ch);
             if (curl_errno($ch)) {
-                $error_msg = curl_error($ch);
+                return curl_error($ch);
             }
             curl_close($ch);
             fclose($fp);
@@ -246,10 +170,12 @@ function sendUserPic($chatId, $userId, $caption = NULL, $sendAsDocument = false,
             return shell_exec("curl -v -F document=@downloads/pic.png https://api.telegram.org/bot" . $botToken . "/sendDocument?chat_id=" . $chatId . "&caption=" . $infos);
         }
     }
+    return false;
 }
 
 
-function banMember($chatid, $userid, $revokeMessages) {
+function banMember($chatid, $userid, $revokeMessages): ?bool
+{
     global $Bot;
     return $Bot->kickChatMember([
         "chat_id" => $chatid,
@@ -286,13 +212,14 @@ function getMaxWarns($chatid, $PDO) {
      return $getMaxWarnsQuery->fetch(PDO::FETCH_ASSOC)["max_warns"];
 }
 
-function warnMember($chatid, $userid, $PDO) {
+function warnMember($chatid, $userid, $PDO): bool
+{
     $getWarns = $PDO->query("select * from frasharpbot.warns where warns.user_id = '$userid' and warns.chat_id = '$chatid'");
     $currentWarns = $getWarns->fetch(PDO::FETCH_ASSOC);
-    if (isset($currentWarns['user_id']) != isset($userid)) {
+    if ($currentWarns['user_id'] != $userid) {
         $PDO->query("insert into frasharpbot.warns (user_id, warns, chat_id) values ('$userid', 1, '$chatid')");
         return true;
-    } elseif (isset($currentWarns['warns']) < getMaxWarns($chatid, $PDO)) {
+    } elseif ($currentWarns['warns'] < getMaxWarns($chatid, $PDO)) {
         $PDO->query("update frasharpbot.warns set warns.warns = warns.warns + 1 where warns.user_id = '$userid' and warns.chat_id = '$chatid'");
         return true;
     }
@@ -300,7 +227,8 @@ function warnMember($chatid, $userid, $PDO) {
 }
 
 // function to check if a user is an admin of the chat
-function isAdmin($userId, $chatId) {
+function isAdmin($userId, $chatId): bool
+{
     global $Bot;
     $isAdmin = false;
 
@@ -315,7 +243,8 @@ function isAdmin($userId, $chatId) {
 
 
 // function to check if a user is the creator of the chat
-function isCreator($userId, $chatId) {
+function isCreator($userId, $chatId): bool
+{
     global $Bot;
     $isCreator = false;
 
@@ -329,7 +258,8 @@ function isCreator($userId, $chatId) {
 }
 
 
-function hasRight(int $userId, int $chatId, string $rightToCheck) {
+function hasRight(int $userId, int $chatId, string $rightToCheck): bool
+{
     global $Bot;
     $hasRight = false;
 
