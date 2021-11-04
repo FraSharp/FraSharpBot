@@ -10,7 +10,7 @@ $conn = new PDO("mysql:host=localhost;dbname=" . getenv("dbname"), getenv("dbuse
 
 $sql = "CREATE TABLE IF NOT EXISTS frasharpbot.banned (";
 $sql .= "id bigint NOT NULL UNIQUE )";
-$conn->query($sql);
+$conn->exec($sql);
 
 /*
  *
@@ -25,7 +25,7 @@ $sql .= "chat_id bigint,";
 $sql .= "max_warns bigint,";
 $sql .= "warns int,";
 $sql .= "PRIMARY KEY (id));";
-$conn->query($sql);
+$conn->exec($sql);
 
 
 /*
@@ -39,4 +39,4 @@ $sql .= "user_id bigint NOT NULL UNIQUE,";
 $sql .= "firstname varchar(255),";
 $sql .= "lastname varchar(255),";
 $sql .= "username varchar(255))";
-$conn->query($sql);
+$conn->exec($sql);

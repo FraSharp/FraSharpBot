@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * @throws JsonException
+ */
 function getUserInfo($Bot, $chatid, $userid, $username, $firstName, $lastName) {
     $infos = "❓ informations about the user: ";
     $infos .= "\n\n🆔 <pre>user id:</pre> $userid";
@@ -28,7 +31,7 @@ function getUserInfo($Bot, $chatid, $userid, $username, $firstName, $lastName) {
     $userPic = $Bot->getUserProfilePhotos(["user_id" => $userid, "limit" => 1]);
     if ($userPic->total_count > 0) {
         return sendUserPic($chatid, $userid, $infos);
-    } else {
-        return $Bot->sendMessage($infos);
     }
+
+    return $Bot->sendMessage($infos);
 }

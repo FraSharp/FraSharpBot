@@ -93,14 +93,19 @@ function idFromJson($json, $userid): bool
 {
     $isHere = false;
     foreach ($json as $id) {
-        if ($id == $userid) $isHere = true;
+        if ($id === $userid) {
+            $isHere = true;
+        }
     }
     return $isHere;
 }
 
+/**
+ * @throws JsonException
+ */
 function isAllowed($userId): bool
 {
-    $perm = json_decode(file_get_contents(__DIR__ . "/elevated/elevated.json"));
+    $perm = json_decode(file_get_contents(__DIR__ . "/elevated/elevated.json"), false,  512, JSON_THROW_ON_ERROR);
 
     (idFromJson($perm->allowed_users->id, $userId)) ? $isAllowed = true : $isAllowed = false;
 
@@ -108,9 +113,12 @@ function isAllowed($userId): bool
 }
 
 
+/**
+ * @throws JsonException
+ */
 function isBotOwner($userId): bool
 {
-    $perm = json_decode(file_get_contents(__DIR__ . "/elevated/elevated.json"));
+    $perm = json_decode(file_get_contents(__DIR__ . "/elevated/elevated.json"), false, 512, JSON_THROW_ON_ERROR);
 
     (idFromJson($perm->owner->id, $userId)) ? $isOwner = true : $isOwner = false;
 
@@ -118,12 +126,12 @@ function isBotOwner($userId): bool
 }
 
 
+/**
+ * @throws JsonException
+ */
 function isBotSudo($userId): bool
 {
-    if (isAllowed($userId) or isBotOwner($userId))
-        return true;
-
-    return false;
+    return isAllowed($userId) || isBotOwner($userId);
 }
 
 
@@ -145,32 +153,33 @@ function sendUserPic($chatId, $userId, $caption = NULL, $sendAsDocument = false,
     global $Bot;
 
     $userPic = $Bot->getUserProfilePhotos(["user_id" => $userId, "limit" => 1]);
-    $photoId = $userPic->photos['0']['0']->file_id;
+    if (!is_null($userPic)) {
+        $photoId = $userPic->photos['0']['0']->file_id;
+    }
     $getFile = $Bot->getFile(["file_id" => $photoId]);
-    $filePath = $getFile->file_path;
+    if (!is_null($getFile)) {
+        $filePath = $getFile->file_path;
+    }
     $botToken = getenv("token");
 
-    if ($sendAsDocument == false) {
+    if (!$sendAsDocument) {
         return $Bot->sendPhoto(["chat_id" => $chatId, "photo" => $photoId, "caption" => $caption]);
-    } else {
-        if ($sendAsDocument == true) {
-            $downloadPath = "https://api.telegram.org/file/bot" . $botToken . "/" . $filePath;
-            $saveTo = "downloads/pic.png";
-            $fp = fopen($saveTo, 'w+');
-            $ch = curl_init($downloadPath);
-            curl_setopt($ch, CURLOPT_FILE, $fp);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-            curl_exec($ch);
-            if (curl_errno($ch)) {
-                return curl_error($ch);
-            }
-            curl_close($ch);
-            fclose($fp);
-            //return $Bot->sendDocument(["chat_id" => $chatId, "document" => $downloadPath, "caption" => $caption]);
-            return shell_exec("curl -v -F document=@downloads/pic.png https://api.telegram.org/bot" . $botToken . "/sendDocument?chat_id=" . $chatId . "&caption=" . $infos);
-        }
     }
-    return false;
+
+    $downloadPath = "https://api.telegram.org/file/bot" . $botToken . "/" . $filePath;
+    $saveTo = "downloads/pic.png";
+    $fp = fopen($saveTo, 'wb+');
+    $ch = curl_init($downloadPath);
+    curl_setopt($ch, CURLOPT_FILE, $fp);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+    curl_exec($ch);
+    if (curl_errno($ch)) {
+        return curl_error($ch);
+    }
+    curl_close($ch);
+    fclose($fp);
+    //return $Bot->sendDocument(["chat_id" => $chatId, "document" => $downloadPath, "caption" => $caption]);
+    return shell_exec("curl -v -F document=@downloads/pic.png https://api.telegram.org/bot" . $botToken . "/sendDocument?chat_id=" . $chatId . "&caption=" . $infos);
 }
 
 
@@ -201,10 +210,11 @@ function setMaxWarns($chatid, $warns, $PDO) {
     $getMaxWarnsQuery = $PDO->query("select * from frasharpbot.warns where warns.chat_id = '$chatid'");
     $maxWarns = $getMaxWarnsQuery->fetch(PDO::FETCH_ASSOC)["max_warns"];
 
-    if (is_null($maxWarns))
-        return $PDO->query("insert into frasharpbot.warns (chat_id, max_warns) values ('$chatid', '$warns')");
-    else
-        return $PDO->query("update frasharpbot.warns set warns.max_warns = '$warns' where warns.chat_id = '$chatid'");
+    if (is_null($maxWarns)) {
+        return $PDO->exec("insert into frasharpbot.warns (chat_id, max_warns) values ('$chatid', '$warns')");
+    }
+
+    return $PDO->exec("update frasharpbot.warns set warns.max_warns = '$warns' where warns.chat_id = '$chatid'");
 }
 
 function getMaxWarns($chatid, $PDO) {
@@ -216,10 +226,12 @@ function warnMember($chatid, $userid, $PDO): bool
 {
     $getWarns = $PDO->query("select * from frasharpbot.warns where warns.user_id = '$userid' and warns.chat_id = '$chatid'");
     $currentWarns = $getWarns->fetch(PDO::FETCH_ASSOC);
-    if ($currentWarns['user_id'] != $userid) {
+    if ($currentWarns['user_id'] !== $userid) {
         $PDO->query("insert into frasharpbot.warns (user_id, warns, chat_id) values ('$userid', 1, '$chatid')");
         return true;
-    } elseif ($currentWarns['warns'] < getMaxWarns($chatid, $PDO)) {
+    }
+
+    if ($currentWarns['warns'] < getMaxWarns($chatid, $PDO)) {
         $PDO->query("update frasharpbot.warns set warns.warns = warns.warns + 1 where warns.user_id = '$userid' and warns.chat_id = '$chatid'");
         return true;
     }
@@ -230,15 +242,15 @@ function warnMember($chatid, $userid, $PDO): bool
 function isAdmin($userId, $chatId): bool
 {
     global $Bot;
-    $isAdmin = false;
 
     $chatMember = $Bot->getChatMember([
         "chat_id" => $chatId,
         "user_id" => $userId
     ]);
-    if (in_array($chatMember->status, ["administrator", "creator"])) $isAdmin = true;
-
-    return $isAdmin;
+    if (!is_null($chatMember) && in_array($chatMember->status, ["administrator", "creator"])) {
+        return in_array($chatMember->status, ["administrator", "creator"]);
+    }
+    return false;
 }
 
 
@@ -246,29 +258,30 @@ function isAdmin($userId, $chatId): bool
 function isCreator($userId, $chatId): bool
 {
     global $Bot;
-    $isCreator = false;
 
     $chatMember = $Bot->getChatMember([
         "chat_id" => $chatId,
         "user_id" => $userId
     ]);
-    if ($chatMember->status == "creator") $isCreator = true;
 
-    return $isCreator;
+    if (!is_null($chatMember)) {
+        return $chatMember->status === "creator";
+    }
+    return false;
 }
 
 
 function hasRight(int $userId, int $chatId, string $rightToCheck): bool
 {
     global $Bot;
-    $hasRight = false;
 
     $chatMember = $Bot->getChatMember([
         "chat_id" => $chatId,
         "user_id" => $userId
     ]);
 
-    if ($chatMember->$rightToCheck === true) $hasRight = true;
-
-    return $hasRight;
+    if (!is_null($chatMember)) {
+        return $chatMember->$rightToCheck === true;
+    }
+    return false;
 }
