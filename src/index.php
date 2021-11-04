@@ -83,7 +83,7 @@ if (isset($Bot)) {
     });
 
     $Bot->onMessage(function (Message $message) {
-        if (!is_null($message->text) and str_contains($message->text, ":cowsay") and isBotOwner($message?->from?->id)) {
+        if (!is_null($message->text) && str_contains($message->text, ":cowsay") && isBotOwner($message?->from?->id)) {
             $cowsayText = str_ireplace(":cowsay ", "", $message->text);
             cowsay($message?->chat?->id, $cowsayText);
         }
@@ -113,7 +113,7 @@ if (isset($Bot)) {
                     $response = shell_exec($command . " 2<&1");
                 } // any other thing in host os !windows
 
-                if (!is_null($response) and str_contains($response, "sh:")) {
+                if (!is_null($response) && str_contains($response, "sh:")) {
                     $message->reply("$command, not found");
                 } // if command is not found
                 elseif (isset($response)) {
