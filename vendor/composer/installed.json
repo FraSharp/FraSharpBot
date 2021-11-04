@@ -2,17 +2,17 @@
     "packages": [
         {
             "name": "monolog/monolog",
-            "version": "2.3.4",
-            "version_normalized": "2.3.4.0",
+            "version": "2.3.5",
+            "version_normalized": "2.3.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Seldaek/monolog.git",
-                "reference": "437e7a1c50044b92773b361af77620efb76fff59"
+                "reference": "fd4380d6fc37626e2f799f29d91195040137eba9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/437e7a1c50044b92773b361af77620efb76fff59",
-                "reference": "437e7a1c50044b92773b361af77620efb76fff59",
+                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/fd4380d6fc37626e2f799f29d91195040137eba9",
+                "reference": "fd4380d6fc37626e2f799f29d91195040137eba9",
                 "shasum": ""
             },
             "require": {
@@ -28,7 +28,7 @@
                 "elasticsearch/elasticsearch": "^7",
                 "graylog2/gelf-php": "^1.4.2",
                 "mongodb/mongodb": "^1.8",
-                "php-amqplib/php-amqplib": "~2.4",
+                "php-amqplib/php-amqplib": "~2.4 || ^3",
                 "php-console/php-console": "^3.1.3",
                 "phpspec/prophecy": "^1.6.1",
                 "phpstan/phpstan": "^0.12.91",
@@ -55,7 +55,7 @@
                 "rollbar/rollbar": "Allow sending log messages to Rollbar",
                 "ruflin/elastica": "Allow sending log messages to an Elastic Search server"
             },
-            "time": "2021-09-15T11:27:21+00:00",
+            "time": "2021-10-01T21:08:31+00:00",
             "type": "library",
             "extra": {
                 "branch-alias": {
@@ -88,7 +88,7 @@
             ],
             "support": {
                 "issues": "https://github.com/Seldaek/monolog/issues",
-                "source": "https://github.com/Seldaek/monolog/tree/2.3.4"
+                "source": "https://github.com/Seldaek/monolog/tree/2.3.5"
             },
             "funding": [
                 {
@@ -209,12 +209,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/skrtdev/NovaGram.git",
-                "reference": "80078d7d4f62ae8cf2918c85dae9e962b573d700"
+                "reference": "b35f49e0cb34f282c3a492032f85e275f03e4e52"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/skrtdev/NovaGram/zipball/80078d7d4f62ae8cf2918c85dae9e962b573d700",
-                "reference": "80078d7d4f62ae8cf2918c85dae9e962b573d700",
+                "url": "https://api.github.com/repos/skrtdev/NovaGram/zipball/b35f49e0cb34f282c3a492032f85e275f03e4e52",
+                "reference": "b35f49e0cb34f282c3a492032f85e275f03e4e52",
                 "shasum": ""
             },
             "require": {
@@ -232,7 +232,7 @@
                 "ext-pcntl": "Needed to process updates with multi-processing",
                 "ext-pdo": "Needed to use the built-in Database"
             },
-            "time": "2021-09-19T14:33:07+00:00",
+            "time": "2021-10-22T09:47:27+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
