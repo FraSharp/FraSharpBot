@@ -206,9 +206,16 @@ function kickMember($chatid, $userid) {
     ]);
 }
 
+/**
+ * @throws \skrtdev\NovaGram\Exception
+ */
 function setMaxWarns($chatid, $warns, $PDO) {
     $getMaxWarnsQuery = $PDO->query("select * from frasharpbot.warns where warns.chat_id = '$chatid'");
     $maxWarns = $getMaxWarnsQuery->fetch(PDO::FETCH_ASSOC)["max_warns"];
+
+    if ($warns < 0 || $warns >= 10) {
+        throw new \skrtdev\NovaGram\Exception("Exception: max warns must be higher than 0 and lower than 10, you tried with");
+    }
 
     if (is_null($maxWarns)) {
         return $PDO->exec("insert into frasharpbot.warns (chat_id, max_warns) values ('$chatid', '$warns')");

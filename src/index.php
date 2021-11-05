@@ -20,12 +20,7 @@ if (isset($dbname, $dbpass, $dbuser)) {
             "command_prefixes" => [':'],
             "skip_old_updates" => true,
             "threshold" => 50,
-            "parse_mode" => "HTML",
-            "database" => [
-                "dbname" => $dbname,
-                "dbuser" => $dbuser,
-                "dbpass" => $dbpass
-            ]
+            "parse_mode" => "HTML"
         ]);
     } catch (\skrtdev\NovaGram\Exception $e) {
     }
@@ -202,6 +197,7 @@ if (isset($Bot)) {
         $chat = $message?->chat;
         $mentionUserReply = "<a href='tg://user?id=$useridReply'>$firstNameReply $lastNameReply</a>";
 
+
         if (str_starts_with($message->text, ":kick")) {
             try {
                 $useridToKick = str_ireplace(":kick ", "", $message->text);
@@ -213,8 +209,8 @@ if (isset($Bot)) {
                 } else if ((isBotSudo($userid) || hasRight($userid, $chatid, "can_restrict_members"))) {
                     kickMember($chatid, $useridReply);
                     $message->reply($mentionUserReply . " was kicked");
-                } else if (isAdmin($useridReply, $chatid) && (isBotSudo($userid) || hasRight($userid, $chatid, "can_restrict_members"))) {
-                    $message->reply("this user is admin, it cannot be kicked");
+                } else if ((isAdmin($useridReply, $chatid) || isBotSudo($userid) ) && (isBotSudo($userid) || hasRight($userid, $chatid, "can_restrict_members"))) {
+                    $message->reply("this user cannot be kicked");
                 }
             } catch (BadRequestException $e) {
                 if (str_contains($e, "not enough rights to restrict/unrestrict chat member")) {
@@ -230,21 +226,18 @@ if (isset($Bot)) {
         $useridReply = $message?->reply_to_message?->from?->id;
         $mentionUserReply = "<a href='tg://user?id=$useridReply'>$firstNameReply $lastNameReply</a>";
         $chatid = $message?->chat?->id;
-        $userid = $message?->from?->id;
         $useridReply = $message?->reply_to_message?->from?->id;
 
         try {
-            //if (!isAdmin($userid, $chatid) or !hasRight($userid, $chatid, "can_restrict_members")) {
-                //$message->reply("you don't have enough rights to warn a user");
             if (isAdmin($useridReply, $chatid)) {
-                $message->reply($mentionUserReply . " is admin, i can't warn them");
+                $message->reply($mentionUserReply . " is admin, can't warn them");
             } elseif (warnMember($chatid, $useridReply, $PDO) && !is_null($useridReply)) {
                 $getWarns = $PDO->query("select * from frasharpbot.warns where warns.user_id = '$useridReply' and warns.chat_id = '$chatid'");
                 $currentWarns = $getWarns?->fetch(PDO::FETCH_ASSOC);
                 if ($currentWarns['warns'] <= getMaxWarns($chatid, $PDO)) {
                     $message->reply("$mentionUserReply is warned: {$currentWarns['warns']}/" . getMaxWarns($chatid, $PDO));
                 }
-                if (!is_null(getMaxWarns($chatid, $PDO)) && $currentWarns['warns'] === getMaxWarns($chatid, $PDO)) {
+                if (!is_null(getMaxWarns($chatid, $PDO) && $currentWarns['warns'] === getMaxWarns($chatid, $PDO))) {
                     kickMember($chatid, $useridReply);
                     $message->chat->sendMessage($mentionUserReply . " kicked. " . getMaxWarns($chatid, $PDO) . " warns limit exceeded");
                     $PDO->exec("update frasharpbot.warns set warns.warns = 0 where warns.user_id = '$useridReply' and warns.chat_id = '$chatid'");
@@ -262,9 +255,10 @@ if (isset($Bot)) {
         if (str_starts_with($message->text, ":setMaxWarns")) {
             $getWarnsVal = explode(" ", $message->text);
             $maxWarns = (int)$getWarnsVal[1];
-
-            if ($maxWarns > 0 && $maxWarns <= 10) {
+            try {
                 setMaxWarns($message->chat->id, $maxWarns, $PDO);
+            } catch (\skrtdev\NovaGram\Exception $e) {
+                $message->reply($e->getMessage());
             }
         }
     });
