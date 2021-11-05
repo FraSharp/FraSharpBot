@@ -1,6 +1,6 @@
 {
     "require": {
-        "skrtdev/novagram": "v2.x-dev",
+      "skrtdev/novagram": "v2.x-dev",
       "ext-pdo": "*",
       "ext-curl": "*",
       "ext-mysqli": "*",
