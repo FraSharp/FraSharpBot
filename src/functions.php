@@ -88,17 +88,18 @@ function customPromote($chatId, $userId, $text): ?bool
     ]);
 }
 
+
 // function to search into a json file
 function idFromJson($json, $userid): bool
 {
-    $isHere = false;
     foreach ($json as $id) {
         if ($id === $userid) {
-            $isHere = true;
+            return true;
         }
     }
-    return $isHere;
+    return false;
 }
+
 
 /**
  * @throws JsonException
@@ -206,6 +207,7 @@ function kickMember($chatid, $userid) {
     ]);
 }
 
+
 /**
  * @throws \skrtdev\NovaGram\Exception
  */
@@ -224,10 +226,12 @@ function setMaxWarns($chatid, $warns, $PDO) {
     return $PDO->exec("update frasharpbot.warns set warns.max_warns = '$warns' where warns.chat_id = '$chatid'");
 }
 
+
 function getMaxWarns($chatid, $PDO) {
      $getMaxWarnsQuery = $PDO->query("select * from frasharpbot.warns where warns.chat_id = '$chatid'");
      return $getMaxWarnsQuery->fetch(PDO::FETCH_ASSOC)["max_warns"];
 }
+
 
 function warnMember($chatid, $userid, $PDO): bool
 {
@@ -244,6 +248,7 @@ function warnMember($chatid, $userid, $PDO): bool
     }
     return false;
 }
+
 
 // function to check if a user is an admin of the chat
 function isAdmin($userId, $chatId): bool
@@ -292,3 +297,5 @@ function hasRight(int $userId, int $chatId, string $rightToCheck): bool
     }
     return false;
 }
+
+// TODO: leave every chat
