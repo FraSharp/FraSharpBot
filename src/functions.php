@@ -216,7 +216,7 @@ function setMaxWarns($chatid, $warns, $PDO) {
     $maxWarns = $getMaxWarnsQuery->fetch(PDO::FETCH_ASSOC)["max_warns"];
 
     if ($warns < 0 || $warns >= 10) {
-        throw new \skrtdev\NovaGram\Exception("Exception: max warns must be higher than 0 and lower than 10, you tried with");
+        throw new \skrtdev\NovaGram\Exception("Exception: max warns must be higher than 0 and lower than 10, you tried with $warns");
     }
 
     if (is_null($maxWarns)) {
@@ -287,10 +287,7 @@ function hasRight(int $userId, int $chatId, string $rightToCheck): bool
 {
     global $Bot;
 
-    $chatMember = $Bot->getChatMember([
-        "chat_id" => $chatId,
-        "user_id" => $userId
-    ]);
+    $chatMember = $Bot->getChatMember($chatId, $userId);
 
     if (!is_null($chatMember)) {
         return $chatMember->$rightToCheck === true;
@@ -298,4 +295,15 @@ function hasRight(int $userId, int $chatId, string $rightToCheck): bool
     return false;
 }
 
-// TODO: leave every chat
+
+function leaveAllChats(PDO $PDO): void
+{
+    global $Bot;
+
+    $chatsQuery = $PDO->query("select * from frasharpbot.chat");
+    $row = $chatsQuery->fetchAll(PDO::FETCH_ASSOC);
+
+    foreach ($row as $chatid) {
+        $Bot->leaveChat($chatid);
+    }
+}

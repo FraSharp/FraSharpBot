@@ -2,6 +2,7 @@
 require("vendor/autoload.php");
 use skrtdev\NovaGram\Bot;
 use skrtdev\Telegram\BadRequestException;
+use skrtdev\Telegram\Chat;
 use skrtdev\Telegram\Message;
 
 require_once("config.php");
@@ -30,8 +31,19 @@ $PDO = new PDO("mysql:host=localhost;dbname=" . getenv("dbname"), getenv("dbuser
 
 if (isset($Bot)) {
 
+    // set default max warns [3] when bot is added to a group
+    $Bot->onNewGroup(function (Chat $chat) use ($PDO) {
+        $chatid = $chat->id;
+
+        $getMaxWarnsQuery = $PDO->query("select * from frasharpbot.warns where warns.chat_id = '$chatid'");
+
+        if (is_null($getMaxWarnsQuery->fetch(PDO::FETCH_ASSOC)["max_warns"])) {
+            $PDO->exec("insert into frasharpbot.warns (chat_id, max_warns) values ('$chatid', 3)");
+        }
+    });
+
     $Bot->onCommand('start', function (Message $message) {
-        $message->reply("FraSharpBot v0.1-beta | alive");
+        $message->reply("FraSharpBot v0.1a | alive");
     });
 
     $Bot->onCommand('lag', function (Message $message) {
@@ -118,21 +130,23 @@ if (isset($Bot)) {
         }
     });
 
-    $Bot->onMessage(function (Message $message) {
-        global $PDO;
+    $Bot->onMessage(function (Message $message) use ($PDO){
         $firstName = $message?->from?->first_name;
         $lastName = $message?->from?->last_name;
         $username = $message?->from?->username;
         $userid = $message?->from?->id;
+        $chatid = $message?->chat?->id;
 
         $result = $PDO->query("SELECT * FROM frasharpbot.user WHERE user.user_id = '$userid'");
         $row = $result->fetch(PDO::FETCH_ASSOC);
+
+        $PDO->exec("insert ignore into frasharpbot.chat (`chat_id`) VALUES ('$chatid')");
 
         try {
             if (isset($row['username']) !== isset($username) && isset($row['firstname']) !== isset($firstName) && isset($row['lastname']) !== isset($lastName)) {
                 $PDO->exec("DELETE FROM frasharpbot.user WHERE user.user_id = '$userid'");
                 $PDO->exec("INSERT INTO frasharpbot.user (`user_id`, `username`, `firstname`, `lastname`) VALUES ('$userid', '$username', '$firstName', '$lastName')");
-            } elseif (isset($row['id']) !== isset($userid)) {
+            } else if (isset($row['id']) !== isset($userid)) {
                 $PDO->exec("INSERT INTO frasharpbot.user (`user_id`, `username`, `firstname`, `lastname`) VALUES ('$userid', '$username', '$firstName', '$lastName')");
             }
         } catch (PDOException) {
@@ -173,12 +187,15 @@ if (isset($Bot)) {
 
             sleep(1);
 
+
+            /** @var $refreshStatus */
             $refreshText = "refresh status: $refreshStatus";
             $refreshText .= "\n\t$refreshLog database logs";
             $refreshText .= "\n\t$refreshTable database tables";
             if (isset($refreshCache)) {
                 (!isset($opcacheStatus)) ? $refreshText .= "\n\t$refreshCache caches" : $refreshText .= "\n\t$opcacheStatus";
             }
+
 
             if (!is_null($refresh)) {
                 $refresh->editText($refreshText);
@@ -252,12 +269,22 @@ if (isset($Bot)) {
     });
 
     $Bot->onMessage(function (Message $message) use ($PDO) {
-        if (str_starts_with($message->text, ":setMaxWarns")) {
+        if (str_starts_with(!is_null($message->text), ":setMaxWarns")) {
             $getWarnsVal = explode(" ", $message->text);
             $maxWarns = (int)$getWarnsVal[1];
             try {
                 setMaxWarns($message->chat->id, $maxWarns, $PDO);
             } catch (\skrtdev\NovaGram\Exception $e) {
+                $message->reply($e->getMessage());
+            }
+        }
+    });
+
+    $Bot->onCommand("leaveall", function (Message $message) use ($PDO) {
+        if (isCreator($message->from->id, $message->chat->id)) {
+            try {
+                leaveAllChats($PDO);
+            } catch (PDOException $e) {
                 $message->reply($e->getMessage());
             }
         }

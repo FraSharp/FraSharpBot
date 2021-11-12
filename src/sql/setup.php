@@ -40,3 +40,14 @@ $sql .= "firstname varchar(255),";
 $sql .= "lastname varchar(255),";
 $sql .= "username varchar(255))";
 $conn->exec($sql);
+
+
+/*
+ *
+ *  create chats table
+ *
+ */
+
+$sql = "CREATE TABLE IF NOT EXISTS frasharpbot.chat (";
+$sql .= "chat_id bigint NOT NULL UNIQUE)";
+$conn->exec($sql);
