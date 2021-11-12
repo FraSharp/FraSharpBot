@@ -15,16 +15,14 @@ if (isset($modules)) {
     }
 }
 
-if (isset($dbname, $dbpass, $dbuser)) {
-    try {
-        $Bot = new Bot(getenv("token"), [
-            "command_prefixes" => [':'],
-            "skip_old_updates" => true,
-            "threshold" => 50,
-            "parse_mode" => "HTML"
-        ]);
-    } catch (\skrtdev\NovaGram\Exception $e) {
-    }
+try {
+    $Bot = new Bot(getenv("token"), [
+        "command_prefixes" => [':'],
+        "skip_old_updates" => true,
+        "threshold" => 50,
+        "parse_mode" => "HTML"
+    ]);
+} catch (\skrtdev\NovaGram\Exception $e) {
 }
 
 $PDO = new PDO("mysql:host=localhost;dbname=" . getenv("dbname"), getenv("dbuser"), getenv("dbpass"));
