@@ -1,7 +1,7 @@
 <?php
-// function to demote a member
 use skrtdev\Telegram\Message;
 
+// function to demote a member
 function demoteMember(int $chatId, int $userId): ?bool
 {
     global $Bot;
